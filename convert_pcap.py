@@ -67,8 +67,9 @@ if __name__ == '__main__':
     data = open(filename_out, 'rb').read()
     pixels = []
     count = len(data)
-    while (count > 3):
-        pixels.append(data[count], data[count+1], data[count+2])
-        count = count - 3
+    index = 0
+    while (index < (count-3)):
+        pixels.append(data[index], data[index+1], data[index+2])
+        index = index + 3
     img.putdata(pixels)
     img.save(filename_image)
