@@ -19,3 +19,26 @@ try:
     from pcapfile import savefile
 except:
     print "Try 'pip install -U pcapfile'" 
+    
+    
+    
+    
+if __name__ == '__main__':
+    arguments = docopt(__doc__, version='PCAP converter')
+    logging.basicConfig()    
+    logger = logging.getLogger('pcap')
+    logger.setLevel(logging.INFO)    
+
+    is_convert = arguments["convert"]
+    filename = arguments["--file"]
+    offset = arguments["--offset"]
+    
+    try:
+        filecap = open(filename, 'rb')
+    except:
+        logger.error("Failed to open file '{0}' for reading".format(filename))
+        exit(-1)
+    
+    packets = savefile.load_savefile(testcap, verbose=True).packets
+    logger.info("Processing '{0}' packets".format(len(packets))
+    
