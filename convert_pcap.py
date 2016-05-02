@@ -81,7 +81,11 @@ if __name__ == '__main__':
     # I assume R5 G6 B5
     while (index < (count-2)):
         rgb = ord(data[index]) | (ord(data[index+1]) << 8)
-        pixel = (get_bits(rgb, 0, 5), get_bits(rgb, 5, 6), get_bits(rgb, 10, 5))
+        red = get_bits(rgb, 10, 5)
+        green = get_bits(rgb, 5, 6)
+        blue = get_bits(rgb, 0, 5)
+        
+        pixel = (red, green, blue)
         pixels.append(pixel)
         index = index + 2
     img.putdata(pixels)
