@@ -69,7 +69,7 @@ if __name__ == '__main__':
     count = len(data)
     index = 0
     while (index < (count-3)):
-        pixels.append(data[index], data[index+1], data[index+2])
+        pixels.append((data[index], data[index+1], data[index+2]))
         index = index + 3
     img.putdata(pixels)
     img.save(filename_image)
