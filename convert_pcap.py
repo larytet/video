@@ -6,8 +6,9 @@ Usage:
     
     
 Options:
-    --file=FILENAME file to convert
+    --filein=FILENAME file to convert
     --offset=OFFSET offset of the data in the Ethernet packet payload
+    --fileout=FILENAME file to generate
 '''
 
 import logging 
@@ -31,7 +32,7 @@ if __name__ == '__main__':
     logger = logging.getLogger('pcap')
     logger.setLevel(logging.INFO)    
     is_convert = arguments["convert"]
-    filename = arguments["--file"]
+    filename = arguments["--filein"]
     filename_out = arguments["--fileout"]
     offset = arguments["--offset"]
     
