@@ -80,10 +80,10 @@ if __name__ == '__main__':
     index = 0
     # I assume R5 G6 B5
     while (index < (count-2)):
-        rgb = ord(data[index]) | (ord(data[index+1]) << 8)
-        red = get_bits(rgb, 10, 5)
+        rgb = (ord(data[index]) << 8) | (ord(data[index+1]) << 0)
+        red = get_bits(rgb, 0, 5)
         green = get_bits(rgb, 5, 6)
-        blue = get_bits(rgb, 0, 5)
+        blue = get_bits(rgb, 10, 5)
         
         pixel = (red, green, blue)
         pixels.append(pixel)
