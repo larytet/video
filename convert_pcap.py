@@ -64,6 +64,6 @@ if __name__ == '__main__':
     fileout.close()
         
     img = Image.new('RGB', (640, 480))
-    data = open(fileout, 'rb').read()
+    data = open(filename_out, 'rb').read()
     img.putdata(data)
     img.save(filename_image)
