@@ -65,6 +65,10 @@ if __name__ == '__main__':
         
     img = Image.new('RGB', (640, 480))
     data = open(filename_out, 'rb').read()
-    pixels = list(tuple(pixel) for pixel in data)
+    pixels = []
+    count = len(data)
+    while (count > 3):
+        pixels.append(data[count:1], data[count:2], data[count:3])
+        count = count - 3
     img.putdata(pixels)
     img.save(filename_image)
