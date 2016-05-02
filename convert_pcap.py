@@ -66,15 +66,15 @@ if __name__ == '__main__':
     fileout.close()
         
     # Generate am image file 
-    img = Image.new('RGB', (640, 480))
+    img = Image.new('RGB', (320, 240))
     data = open(filename_out, 'rb').read()
     pixels = []
     count = len(data)
     index = 0
     # I assume 24 bits of RGB in the data file
-    while (index < (count-3)):
-        pixel = ((ord(data[index]), ord(data[index+1]), ord(data[index+2])))
+    while (index < (count-2)):
+        pixel = (ord(data[index]), ord(data[index+1]), 0)
         pixels.append(pixel)
-        index = index + 3
+        index = index + 2
     img.putdata(pixels)
     img.save(filename_image)
