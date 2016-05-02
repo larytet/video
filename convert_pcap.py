@@ -47,6 +47,12 @@ def get_pixel_rgb565(data, index):
     blue = (get_bits(rgb, 0, 5) * 255)/31
     return (red, green, blue)
 
+def get_pixel_rgb565_1(data, index):
+    rgb = (ord(data[index]) << 0) | (ord(data[index+1]) << 8)
+    red = ((get_bits(rgb, 11, 5) * 527) + 23) >> 6  # r = ((((color >> 11) & 0x1F) * 527) + 23) >> 6;
+    green = ((get_bits(rgb, 5, 6) * 259) + 33) >> 6 # g = ((((color >> 5) & 0x3F) * 259) + 33) >> 6;
+    blue = ((get_bits(rgb, 0, 5) * 527) + 23) >> 6 # b = (((color & 0x1F) * 527) + 23) >> 6;
+    return (red, green, blue)
     
 if __name__ == '__main__':
     pass
@@ -83,14 +89,14 @@ if __name__ == '__main__':
     fileout.close()
         
     # Generate am image file 
-    img = Image.new('RGB', (320, 240))
+    img = Image.new('RGB', (320, 240), "black")
     data = open(filename_out, 'rb').read()
     pixels = []
     count = len(data)
     index = 0
     # I assume R5 G6 B5
     while (index < (count-2)):
-        pixel = get_pixel_rgb565(data, index)
+        pixel = get_pixel_rgb565_1(data, index)
         pixels.append(pixel)
         index = index + 2
     img.putdata(pixels)
