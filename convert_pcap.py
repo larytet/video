@@ -41,9 +41,9 @@ def get_bits(value, start, bits):
 
 def get_pixel_rgb565(data, index):
     rgb = (ord(data[index]) << 0) | (ord(data[index+1]) << 8)
-    red = get_bits(rgb, 11, 5) * (255/32)
-    green = get_bits(rgb, 5, 6) * (255/64)
-    blue = get_bits(rgb, 0, 5) * (255/32)
+    red = (get_bits(rgb, 11, 5) * 255)/31
+    green = (get_bits(rgb, 5, 6) * 255)/63
+    blue = (get_bits(rgb, 0, 5) * 255)/31
     return (red, green, blue)
 
     
