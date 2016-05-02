@@ -53,9 +53,9 @@ if __name__ == '__main__':
     
     offset = int(offset_str, 16)
     packets = savefile.load_savefile(filecap, verbose=True).packets
-    logger.info("Processing '{0}' packets".format(len(packets)))
+    logger.info("Processing '{0}' packets, data offset {1}".format(len(packets), hex(offset)))
     for packet in packets:
         packet_raw = packet.raw()
-        fileout.write(packet_raw[:offset])
+        fileout.write(packet_raw[offset:])
     fileout.close()
         
