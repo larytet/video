@@ -55,6 +55,7 @@ if __name__ == '__main__':
         
     filename_image = filename_out+".png"
     
+    # Read the PCAP file , save the payload in a separate file
     offset = int(offset_str, 16)
     packets = savefile.load_savefile(filecap, verbose=True).packets
     logger.info("Processing '{0}' packets, data offset {1}".format(len(packets), hex(offset)))
@@ -63,14 +64,15 @@ if __name__ == '__main__':
         fileout.write(packet_raw[offset:])
     fileout.close()
         
+    # Generate am image file 
     img = Image.new('RGB', (640, 480))
     data = open(filename_out, 'rb').read()
     pixels = []
     count = len(data)
     index = 0
+    # I assume 24 bits of RGB in the data file
     while (index < (count-3)):
         pixel = ((ord(data[index]), ord(data[index+1]), ord(data[index+2])))
-        print pixel
         pixels.append(pixel)
         index = index + 3
     img.putdata(pixels)
