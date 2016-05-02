@@ -14,7 +14,11 @@ Example:
     ./convert_pcap.py convert --filein=udp.pcap --offset=30 --fileout=udp.pcap.bin
 '''
 
-import logging 
+import logging
+import rawpy
+import imageio
+
+ 
 try:
     from docopt import docopt
 except:
@@ -50,6 +54,8 @@ if __name__ == '__main__':
     except:
         logger.error("Failed to open file '{0}' for writing".format(filename_out))
         exit(-1)
+        
+    filename_tiff = filename_out+".tiff"
     
     offset = int(offset_str, 16)
     packets = savefile.load_savefile(filecap, verbose=True).packets
@@ -59,3 +65,6 @@ if __name__ == '__main__':
         fileout.write(packet_raw[offset:])
     fileout.close()
         
+    image_raw = rawpy.imread(filename_out)
+    rgb = image_raw.postprocess()
+    imageio.imsave(filename_tiff, rgb)
