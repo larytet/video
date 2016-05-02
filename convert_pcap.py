@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 '''
 Usage:
-    convert_pcap.py convert --file=FILENAME --offset=OFFSET 
+    convert_pcap.py convert --filein=FILENAME --offset=OFFSET --fileout=FILENAME
     
     
 Options:
@@ -32,6 +32,7 @@ if __name__ == '__main__':
     logger.setLevel(logging.INFO)    
     is_convert = arguments["convert"]
     filename = arguments["--file"]
+    filename_out = arguments["--fileout"]
     offset = arguments["--offset"]
     
     try:
@@ -39,6 +40,17 @@ if __name__ == '__main__':
     except:
         logger.error("Failed to open file '{0}' for reading".format(filename))
         exit(-1)
+
+    try:
+        fileout = open(filename_out, 'wb')
+    except:
+        logger.error("Failed to open file '{0}' for writing".format(filename_out))
+        exit(-1)
     
     packets = savefile.load_savefile(filecap, verbose=True).packets
     logger.info("Processing '{0}' packets".format(len(packets)))
+    for packet in packets:
+        packet_raw = pkt.raw()
+        fileout.write(packet_raw[:offset])
+    fileout.close()
+        
