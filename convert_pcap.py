@@ -65,5 +65,6 @@ if __name__ == '__main__':
         
     img = Image.new('RGB', (640, 480))
     data = open(filename_out, 'rb').read()
-    img.putdata(data)
+    pixels = list(tuple(pixel) for pixel in data)
+    img.putdata(pixels)
     img.save(filename_image)
