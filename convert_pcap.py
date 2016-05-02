@@ -33,21 +33,19 @@ def get_mask(bits):
     return ((1 << bits) - 1)     
 
 
-def get_pixel(data, index):
-    rgb = (ord(data[index]) << 8) | (ord(data[index+1]) << 0)
-    red = get_bits(rgb, 0, 5)
-    green = get_bits(rgb, 5, 6)
-    blue = get_bits(rgb, 10, 5)
-    
-    return (red, green, blue)
-    
-    
-
 def get_bits(value, start, bits):
     mask = get_mask(bits)
     value = value >> start
     value = value & mask
     return value
+
+def get_pixel_rgb565(data, index):
+    rgb = (ord(data[index]) << 8) | (ord(data[index+1]) << 0)
+    red = get_bits(rgb, 0, 5)
+    green = get_bits(rgb, 5, 6)
+    blue = get_bits(rgb, 10, 5)
+    return (red, green, blue)
+
     
 if __name__ == '__main__':
     pass
@@ -91,7 +89,7 @@ if __name__ == '__main__':
     index = 0
     # I assume R5 G6 B5
     while (index < (count-2)):
-        pixel = get_pixel(data, index)
+        pixel = get_pixel_rgb565(data, index)
         pixels.append(pixel)
         index = index + 2
     img.putdata(pixels)
