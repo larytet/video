@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Get a recorded PCAP file, assume that payload is 24 bits RGB, save the payload to the PNG image file 
+# Data can come from OV7691
 '''
 Usage:
     convert_pcap.py convert --filein=FILENAME --offset=OFFSET --fileout=FILENAME
