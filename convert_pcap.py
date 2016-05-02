@@ -10,6 +10,7 @@ Options:
     --offset=OFFSET offset of the data in the Ethernet packet payload
 '''
 
+import logging 
 try:
     from docopt import docopt
 except:
@@ -24,11 +25,11 @@ except:
     
     
 if __name__ == '__main__':
+    pass
     arguments = docopt(__doc__, version='PCAP converter')
     logging.basicConfig()    
     logger = logging.getLogger('pcap')
     logger.setLevel(logging.INFO)    
-
     is_convert = arguments["convert"]
     filename = arguments["--file"]
     offset = arguments["--offset"]
@@ -39,6 +40,5 @@ if __name__ == '__main__':
         logger.error("Failed to open file '{0}' for reading".format(filename))
         exit(-1)
     
-    packets = savefile.load_savefile(testcap, verbose=True).packets
-    logger.info("Processing '{0}' packets".format(len(packets))
-    
+    packets = savefile.load_savefile(filecap, verbose=True).packets
+    logger.info("Processing '{0}' packets".format(len(packets)))
