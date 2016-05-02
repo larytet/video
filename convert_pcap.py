@@ -29,7 +29,14 @@ except:
     print "Try 'pip install -U pcapfile'" 
     
     
-    
+def get_mask(bits):
+    return ((1 << bits) - 1)     
+
+def get_bits(value, start, bits):
+    mask = get_mask(bits)
+    value = value >> start
+    value = value & mask
+    return value
     
 if __name__ == '__main__':
     pass
@@ -71,9 +78,10 @@ if __name__ == '__main__':
     pixels = []
     count = len(data)
     index = 0
-    # I assume 24 bits of RGB in the data file
+    # I assume R5 G6 B5
     while (index < (count-2)):
-        pixel = (ord(data[index]), ord(data[index+1]), 0)
+        rgb = ord(data[index]) | (ord(data[index+1]) << 8)
+        pixel = (get_bits(rgb, 0, 5), get_bits(rgb, 5, 6), get_bits(rgb, 10, 5))
         pixels.append(pixel)
         index = index + 2
     img.putdata(pixels)
