@@ -15,9 +15,7 @@ Example:
 '''
 
 import logging
-import rawpy
-import imageio
-
+from PIL import Image
  
 try:
     from docopt import docopt
@@ -55,7 +53,7 @@ if __name__ == '__main__':
         logger.error("Failed to open file '{0}' for writing".format(filename_out))
         exit(-1)
         
-    filename_tiff = filename_out+".tiff"
+    filename_image = filename_out+".png"
     
     offset = int(offset_str, 16)
     packets = savefile.load_savefile(filecap, verbose=True).packets
@@ -65,6 +63,7 @@ if __name__ == '__main__':
         fileout.write(packet_raw[offset:])
     fileout.close()
         
-    image_raw = rawpy.imread(filename_out)
-    rgb = image_raw.postprocess()
-    imageio.imsave(filename_tiff, rgb)
+    img = Image.new('RGB', (640, 480))
+    data = open(fileout, 'rb').read()
+    img.putdata(data)
+    img.save(filename_image)
