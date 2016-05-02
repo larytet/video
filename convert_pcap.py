@@ -7,8 +7,11 @@ Usage:
     
 Options:
     --filein=FILENAME file to convert
-    --offset=OFFSET offset of the data in the Ethernet packet payload
+    --offset=OFFSET offset of the data in the Ethernet packet payload (HEX)
     --fileout=FILENAME file to generate
+    
+Example:
+    ./convert_pcap.py convert --filein=udp.pcap --offset=30 --fileout=udp.pcap.bin
 '''
 
 import logging 
@@ -34,7 +37,7 @@ if __name__ == '__main__':
     is_convert = arguments["convert"]
     filename = arguments["--filein"]
     filename_out = arguments["--fileout"]
-    offset = arguments["--offset"]
+    offset_str = arguments["--offset"]
     
     try:
         filecap = open(filename, 'rb')
@@ -48,10 +51,11 @@ if __name__ == '__main__':
         logger.error("Failed to open file '{0}' for writing".format(filename_out))
         exit(-1)
     
+    offset = int(offset_str, 16)
     packets = savefile.load_savefile(filecap, verbose=True).packets
     logger.info("Processing '{0}' packets".format(len(packets)))
     for packet in packets:
-        packet_raw = pkt.raw()
+        packet_raw = packet.raw()
         fileout.write(packet_raw[:offset])
     fileout.close()
         
