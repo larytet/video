@@ -4,7 +4,7 @@ block_cipher = None
 
 
 a = Analysis(['convert_pcap.py'],
-             pathex=['/Users/arkadymiasnikov/video'],
+             pathex=['c:\\Users\\test\\video'],
              binaries=None,
              datas=None,
              hiddenimports=[],
@@ -18,16 +18,11 @@ pyz = PYZ(a.pure, a.zipped_data,
              cipher=block_cipher)
 exe = EXE(pyz,
           a.scripts,
-          exclude_binaries=True,
+          a.binaries,
+          a.zipfiles,
+          a.datas,
           name='convert_pcap',
           debug=False,
           strip=False,
           upx=True,
           console=True )
-coll = COLLECT(exe,
-               a.binaries,
-               a.zipfiles,
-               a.datas,
-               strip=False,
-               upx=True,
-               name='convert_pcap')
