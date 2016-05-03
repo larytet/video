@@ -13,7 +13,7 @@ Options:
     --fileout=FILENAME file to generate
     
 Example:
-    ./convert_pcap.py convert --filein=udp.pcap --offset=30 --fileout=udp.pcap.bin
+    ./convert_pcap.py convert --filein=udp.pcap --offset=0x30 --fileout=udp.pcap.bin
 '''
 
 import logging

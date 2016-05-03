@@ -4,7 +4,7 @@ block_cipher = None
 
 
 a = Analysis(['convert_pcap.py'],
-             pathex=['c:\\Users\\test\\video'],
+             pathex=['/Users/arkadymiasnikov/video'],
              binaries=None,
              datas=None,
              hiddenimports=[],
