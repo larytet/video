@@ -30,7 +30,7 @@ except:
 try:
     from pcapfile import savefile
 except:
-    print "Try 'pip install -U pcapfile'" 
+    print "Try 'pip install -U pypcap'" 
     
     
 def get_mask(bits):
