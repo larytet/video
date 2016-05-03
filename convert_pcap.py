@@ -17,8 +17,11 @@ Example:
 '''
 
 import logging
-from PIL import Image
- 
+try:
+    from PIL import Image
+except:
+    print "Try 'pip install -U pillow'" 
+     
 try:
     from docopt import docopt
 except:
