@@ -44,13 +44,13 @@ except Exception as e:
     print "Try 'pip install -U pypcapfile'"
     print e
 
-def convert_to_int(s, base):
+def convert_to_int(str, base):
     value = None
     try:
-        value = int(s, base)
+        value = int(str, base)
         result = True
     except Exception as e:
-        logger.error("Bad formed number '{0}'".format(s))
+        logger.error("Bad formed number '{0}'".format(str))
         logger.error(e)
         result = False
     return (result, value)
@@ -96,12 +96,12 @@ def get_pixel_rgb565_1(data, index):
 
 def parse_arguments_resolution(resolution_arg):
     pattern = "([0-9]+).([0-9]+)"
-    m = re.match(pattern, resolution_arg)
-    result = (m is not None)
+    re_match = re.match(pattern, resolution_arg)
+    result = (re_match is not None)
 
     if result:
-        (_, width) = convert_to_int(m.group(1), 10)
-        (_, height) = convert_to_int(m.group(2), 10)
+        (_, width) = convert_to_int(re_match.group(1), 10)
+        (_, height) = convert_to_int(re_match.group(2), 10)
         return (result, width, height)
     logger.error("Failed to parse image resolution '{0}' ".format(resolution_arg))
     return (result, None, None)
@@ -218,8 +218,12 @@ def run_udp_rx_thread(filename_base, udp_socket, width, height):
         if process_frame:
             filename_image = "{0}.{1}.rgb565".format(filename_base, frame_index)
             (result, fileout) = open_file(filename_image, "wb")
-            fileout.write(frame)
-            fileout.close()
+            if (result):
+                fileout.write(frame)
+                fileout.close()
+            else:
+                logger.warning("Failed to open file {0} for writing, drop frame {1}".format(
+                    len(filename_image, frame_index))
             frame = []
 
         # update the dictionary
