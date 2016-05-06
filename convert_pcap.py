@@ -150,6 +150,7 @@ def convert_image(arguments):
             #fragment_index = struct.unpack('<I', data[FRAGMENT_INDEX_OFFSET:FRAGMENT_INDEX_OFFSET+FRAGMENT_INDEX_SIZE])
             fileout.write(packet_raw[offset:])
         fileout.close()
+        logger.info("Generated file {0}".format(filename_out))
 
         # Generate am image file
         img = Image.new('RGB', (width, height), "black")
