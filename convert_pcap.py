@@ -338,7 +338,6 @@ def run_udptx(arguments):
                 fps_calculated = fps/delta_time
                 logger.info("{:3.1f} fps, over {:2.3f}s".format(fps_calculated, delta_time))
                 fps = 0
-                fps_periods = 0
                 fps_start = timestamp
                 
             bytes_sent = 0
