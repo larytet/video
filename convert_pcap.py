@@ -319,7 +319,7 @@ def run_udptx(arguments):
     fragment_size = 1320
     bytes_sent = 0
     fragments_sent = 0
-    frames_sent = 0
+    rate_limiter_frames_sent = 0
     fps = 0
     fps_start = time.time()
     rate_limiter_timestamp = time.time()
@@ -344,16 +344,17 @@ def run_udptx(arguments):
             timestamp = time.time()
             
             fps = fps + 1
-            frames_sent = frames_sent + 1
+            rate_limiter_frames_sent = rate_limiter_frames_sent + 1
             
             delta_time = timestamp - rate_limiter_timestamp
             # Difference between the expected transmission time at the given frame rate 
             # and actual time 
-            time_to_sleep = (frames_sent/max_frame_rate) - delta_time 
+            time_to_sleep = (rate_limiter_frames_sent/max_frame_rate) - delta_time 
             if (time_to_sleep > 0):
                 time.sleep(time_to_sleep)
-            if (delta_time > 10.0):  # Avoid overflow in the counters
+            if (delta_time > 100.0):  # Avoid overflow in the counters 
                 rate_limiter_timestamp = time.time()
+                rate_limiter_frames_sent = 0
                 
                 
             # print rate
