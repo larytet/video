@@ -28,26 +28,30 @@ import struct
 
 try:
     from PIL import Image
-except:
+except Exception as e:
     print "Try 'pip install -U pillow'"
+    print e
 
 try:
     from docopt import docopt
-except:
+except Exception as e:
     print "Try 'pip install -U docopt'"
+    print e
 
 try:
     from pcapfile import savefile
-except:
+except Exception as e:
     print "Try 'pip install -U pypcapfile'"
+    print e
 
 def convert_to_int(s, base):
     value = None
     try:
         value = int(s, base)
         result = True
-    except:
+    except Exception as e:
         logger.error("Bad formed number '{0}'".format(s))
+        logger.error(e)
         result = False
     return (result, value)
 
@@ -57,13 +61,13 @@ def open_file(filename, flag):
     Returns handle to the open file and result code False/True
     '''
     try:
-        fileHandle = open(filename, flag) # read text file
-    except Exception:
+        file_handle = open(filename, flag) # read text file
+    except Exception as e:
         logger.error('Failed to open file {0}'.format(filename))
-        print sys.exc_info()
+        logger.error(e)
         return (False, None)
     else:
-        return (True, fileHandle)
+        return (True, file_handle)
 
 def get_mask(bits):
     return (1 << bits) - 1
@@ -253,7 +257,7 @@ def run_udp_rx(arguments):
         break
 
 def run_udp_tx(arguments):
-    while True:    
+    while True:
         filename_out = arguments["--fileout"]
         (result, fileout) = open_file(filename_out, 'wb')
         if not result:
