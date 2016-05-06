@@ -223,7 +223,7 @@ def run_udp_rx_thread(filename_base, udp_socket, width, height):
         if expected_fragment_index != fragment_index:
             logger.warning("Got fragment {0} instead of expected fragment {1} in the frame {2}".format(
                 fragment_index, expected_fragment_index, frame_index))
-        if frame_index is not expected_frame_index:
+        if frame_index != expected_frame_index:
             logger.warning("Got frame {0} instead of expected frame {1}".format(
                 frame_index, expected_frame_index))
             # This is a new frame
