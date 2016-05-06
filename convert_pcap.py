@@ -196,11 +196,11 @@ def run_udp_rx_thread(filename_base, udp_socket, width, height):
             logger.info("Got first packet from {0}".format(addr))
             received_udp_packets[addr] = (frame, 0, 0, -1)
         (frame, received_frames, last_frame_index, last_fragment_index) = received_udp_packets[addr]
-        logger.info("Got packet {0} from {1}".format(received_frames, addr))
 
         # Fetch the header (little endian)
         frame_index = struct.unpack('<H', data[FRAME_INDEX_OFFSET:FRAME_INDEX_OFFSET+FRAME_INDEX_SIZE])[0]
         fragment_index = struct.unpack('<I', data[FRAGMENT_INDEX_OFFSET:FRAGMENT_INDEX_OFFSET+FRAGMENT_INDEX_SIZE])[0]
+        logger.info("Got frame {0}, fragment {1} from {2}".format(frame_index, fragment_index, addr))
 
         process_frame = False
         if last_fragment_index != (fragment_index-1):
@@ -234,6 +234,8 @@ def run_udp_rx_thread(filename_base, udp_socket, width, height):
                 logger.warning("Failed to open file {0} for writing, drop frame {1}".format(
                     filename_image, frame_index))
             frame = []
+            fragment_index = -1
+            last_frame_index = frame_index
 
         # update the dictionary
         received_udp_packets[addr] = (frame, received_frames, frame_index, fragment_index)
