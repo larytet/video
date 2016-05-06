@@ -5,8 +5,8 @@
 '''
 Usage:
     convert_pcap.py convert --filein=FILENAME --offset=OFFSET --fileout=FILENAME --resolution=WIDTH,HEIGHT
-    convert_pcap.py udprx --fileout=FILENAME --port=UDP_PORT
-    convert_pcap.py udptx --filein=FILENAME --port=UDP_PORT
+    convert_pcap.py udprx --fileout=FILENAME --port=UDP_PORT --resolution=WIDTH,HEIGHT
+    convert_pcap.py udptx --filein=FILENAME --port=UDP_PORT --resolution=WIDTH,HEIGHT
     
     
 Options:
@@ -22,6 +22,7 @@ Example:
 
 import sys
 import logging
+import re
 try:
     from PIL import Image
 except:
@@ -37,6 +38,15 @@ try:
 except:
     print "Try 'pip install -U pypcapfile'" 
     
+def convertToInt(s, base):
+    value = None;
+    try:
+        value = int(s, base);
+        result = True;
+    except:
+        logger.error("Bad formed number '{0}'".format(s));
+        result = False;
+    return (result, value);
 
 def openFile(filename, flag):
     '''
@@ -77,6 +87,14 @@ def get_pixel_rgb565_1(data, index):
     return (red, green, blue)
 
 
+def parse_arguments_resolution(resolution_arg):
+    pattern = "([0-9]+).([0-9]+)"
+    m = re.match(pattern, resolution_arg)
+    result = (m is not None)
+    if (result):
+        
+    
+    
 def convert_image(arguments):
     while (True):
         filename_in = arguments["--filein"]
@@ -92,6 +110,8 @@ def convert_image(arguments):
             logger.error("Failed to open file '{0}' for writing".format(filename_out))
             break
 
+
+        (result, resolution) = parse_arguments_resolution(arguments["--resolution"])
         filename_image = filename_out+".png"
     
         # Read the PCAP file , save the payload in a separate file
