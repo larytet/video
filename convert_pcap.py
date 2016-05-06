@@ -191,39 +191,37 @@ def run_udp_rx_thread(filename_base, udp_socket, width, height):
         # Fetch the header (little endian)
         frame_index = struct.unpack('<i', data[FRAME_INDEX_OFFSET:FRAME_INDEX_OFFSET+FRAME_INDEX_SIZE])
         fragment_index = struct.unpack('<i', data[FRAGMENT_INDEX_OFFSET:FRAGMENT_INDEX_OFFSET+FRAGMENT_INDEX_SIZE])
-        
+
         frame.append()
         process_frame = False
-        if (last_fragment_index != (fragment_index-1)):
+        if last_fragment_index != (fragment_index-1):
             logger.warning("Got fragment index {0} instead of expected fragment {1} in the frame {2}".format(
                 fragment_index, last_fragment_index+1, received_frames))
-            
-        if (len(frame) > expected_frame_size):
+
+        if len(frame) > expected_frame_size:
             logger.warning("Got {0} bytes instead of expected {1} bytes for the resolution {2}x{3} in frame {4}. Ignore the data".format(
                 len(frame), expected_frame_size, width, height, received_frames))
-        elif (frame_index is not last_frame_index):
+        elif frame_index is not last_frame_index:
             # This is a new frame
             if (len(frame) < expected_frame_size):
                 logger.warning("Got {0} bytes instead of expected {1} bytes for the resolution {2}x{3} in frame {4}".format(
                 len(frame), expected_frame_size, width, height, received_frames))
             process_frame = True
-        elif (len(frame) >= expected_frame_size):
+        elif len(frame) >= expected_frame_size:
             process_frame = True
-            
+
         # The 'frame' contains a whole image - save the data to the rgb565 file
-        if (process_frame):
+        if process_frame:
             filename_image = "{0}.{1}.rgb565".format(filename_base, frame_index)
             (result, fileout) = open_file(filename_image, "wb")
             fileout.write(frame)
             fileout.close()
             frame = []
-            
+
         # update the dictionary
         received_udp_packets[addr] = (frame, received_frames, frame_index, fragment_index)
         received_frames = received_frames + 1
-            
-        
-    
+
 def run_udp_rx(arguments):    
     while (True):
         filename_out = arguments["--fileout"]
