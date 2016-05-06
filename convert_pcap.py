@@ -166,8 +166,12 @@ def run_udp_rx(arguments):
         (result, width, height) = parse_arguments_resolution(arguments["--resolution"])
         if (not result):
             break
+        
         udp_port_str = arguments["--port"]
-        udp_port = convert_to_int(s, base)
+        (result, udp_port) = convert_to_int(udp_port_str, 10)
+        if (not result):
+            logger.error("Failed to parse UDP port number '{0}'".format(udp_port_str))
+            break;
             
         filename_image = filename_out+".png"
         
