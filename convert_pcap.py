@@ -156,6 +156,13 @@ def convert_image(arguments):
                     
         break;
     
+FRAME_INDEX_OFFSET = 0 # bytes
+FRAME_INDEX_SIZE = 2 # bytes
+
+FRAGMENT_INDEX_OFFSET = FRAME_INDEX_OFFSET+FRAME_INDEX_SIZE
+FRAGMENT_INDEX_SIZE = 4 # bytes
+    
+HEADER_SIZE = FRAGMENT_INDEX_SIZE + FRAME_INDEX_SIZE
     
 def run_udp_rx_thread(filename_base, udp_socket, width, heigh):
     frame_index = 0            
@@ -170,7 +177,13 @@ def run_udp_rx_thread(filename_base, udp_socket, width, heigh):
             logger.error("Failed to read UDP socket")
             logger.error(e)
             break
-        
+        frame = []
+        if (not addr in received_udp_packets):  # very first time I see the UDP source IP
+            logger.error("Got first packet from {0}".format(addr))
+            received_udp_packets[addr] = frame
+        frame = received_udp_packets[addr]
+        # first 6 bytes is frame counter and fragment counter
+        frame.append()
             
         
     
