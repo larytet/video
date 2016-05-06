@@ -148,13 +148,13 @@ def convert_image(arguments):
             index = index + 2
             if len(pixels) >= expected_count:
                 if index < (count-2):
-                    logger.warning("Too much data for the image {0}x{1}. \
-                        Expected {2} pixels, got {3} pixels".format(
+                    logger.warning("Too much data for the image {0}x{1}. Expected {2} pixels, got {3} pixels".format(
                         width, height, expected_count, count/2))
-                break;
-            
-        if (len(pixels) < expected_count):
-            logger.warning("Not enough data for the image {0}x{1}. Expected {2} pixels, got {3} pixels".format(width, height, expected_count, len(pixels)))
+                break
+
+        if len(pixels) < expected_count:
+            logger.warning("Not enough data for the image {0}x{1}. Expected {2} pixels, got {3} pixels".format(
+                width, height, expected_count, len(pixels)))
         img.putdata(pixels)
         img.save(filename_image)
         logger.warning("Generated file {0}".format(filename_image))
