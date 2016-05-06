@@ -20,6 +20,7 @@ Example:
     ./convert_pcap.py convert --filein=udp.pcap --offset=0x30 --fileout=udp.pcap.bin
 '''
 
+import sys
 import logging
 try:
     from PIL import Image
@@ -83,32 +84,14 @@ def convert_image(arguments):
         offset_str = arguments["--offset"]
         (result, filecap) = openFile(filename_in, 'rb')
         if (not result):
-            logger.error("Failed to open file '{0}' for reading".format(filename))
+            logger.error("Failed to open file '{0}' for reading".format(filename_in))
             break
 
-        (result, filecap) = openFile(filename_in, 'wb')
+        (result, fileout) = openFile(filename_out, 'wb')
         if (not result):
             logger.error("Failed to open file '{0}' for writing".format(filename_out))
             break
-        
-if __name__ == '__main__':
-    arguments = docopt(__doc__, version='PCAP converter')
-    
-    logging.basicConfig()    
-    logger = logging.getLogger('pcap')
-    logger.setLevel(logging.INFO)    
-    
-    is_convert = arguments["convert"]
-    is_udprx = arguments["udprx"]
-    is_udptx = arguments["udptx"]
-    
-    if (is_convert):
-        convert_image(argumnets)
-    if (is_udprx):
-        run_udp_rx(argumnets)
-    if (is_udptx):
-        run_udptx(argumnets)
-        
+
     filename_image = filename_out+".png"
     
     # Read the PCAP file , save the payload in a separate file
@@ -133,3 +116,22 @@ if __name__ == '__main__':
         index = index + 2
     img.putdata(pixels)
     img.save(filename_image)
+        
+if __name__ == '__main__':
+    arguments = docopt(__doc__, version='PCAP converter')
+    
+    logging.basicConfig()    
+    logger = logging.getLogger('pcap')
+    logger.setLevel(logging.INFO)    
+    
+    is_convert = arguments["convert"]
+    is_udprx = arguments["udprx"]
+    is_udptx = arguments["udptx"]
+    
+    if (is_convert):
+        convert_image(arguments)
+    if (is_udprx):
+        run_udp_rx(arguments)
+    if (is_udptx):
+        run_udptx(arguments)
+        
