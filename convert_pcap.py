@@ -319,10 +319,11 @@ def run_udptx(arguments):
     fragment_size = 1320
     bytes_sent = 0
     fragments_sent = 0
+    frames_sent = 0
     fps = 0
     fps_start = time.time()
     rate_limiter_timestamp = time.time()
-    fps_period = 3.0
+    fps_period = 1.0
     
     udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     while True:
@@ -343,12 +344,12 @@ def run_udptx(arguments):
             timestamp = time.time()
             
             fps = fps + 1
+            frames_sent = frames_sent + 1
             
             delta_time = timestamp - rate_limiter_timestamp
-            time_to_sleep = (1.0/max_frame_rate) - delta_time/max_frame_rate
+            time_to_sleep = (frames_sent/max_frame_rate) - delta_time
             if (time_to_sleep > 0):
                 time.sleep(time_to_sleep)
-            rate_limiter_timestamp = timestamp
                 
             # print rate
             delta_time = timestamp - fps_start
@@ -357,6 +358,7 @@ def run_udptx(arguments):
                 logger.info("{:3.2f} fps, over {:2.3f}s".format(fps_calculated, delta_time))
                 fps = 0
                 fps_start = timestamp
+                fps_period = 5.0
                 
             frame_index = frame_index + 1
             if (frame_index > 64*1024): frame_index = 0;
