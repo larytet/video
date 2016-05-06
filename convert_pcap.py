@@ -280,7 +280,7 @@ def run_udptx(arguments):
     file_in.close()
     frame_index = 0
     fragment_index = 0
-    fragment_size = 1200
+    fragment_size = 1320
     bytes_sent = 0
     while True:
         udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -292,11 +292,12 @@ def run_udptx(arguments):
             bytes_to_send = len(data) - bytes_sent
         packet.append(data[bytes_sent:bytes_sent+bytes_to_send])
         udp_socket.sendto(packet, ("127.0.0.1", udp_port))
+        logger.info("Sent fragment {0}, frame {1}".format(frame_index))
         
         fragment_index = fragment_index + 1
         bytes_sent = bytes_sent + bytes_to_send
         if bytes_sent > len(data):
-            logger.error("Sent frame '{0}'".format(frame_index))
+            logger.info("Sent frame {0}".format(frame_index))
             bytes_sent = 0
             fragment_index = 0
             frame_index = frame_index + 1
