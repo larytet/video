@@ -326,7 +326,7 @@ def run_udptx(arguments):
             # rate limiter
             delta_time = timestamp - rate_limiter_timestamp
             if delta_time > rate_limiter_period:
-                time_to_sleep = rate_limiter_period*((rate_limter_frames/delta_time) - max_frame_rate)/max_frame_rate
+                time_to_sleep = delta_time*((rate_limter_frames/delta_time) - max_frame_rate)/max_frame_rate
                 if time_to_sleep > 0:
                     time.sleep(time_to_sleep)
                 rate_limter_frames = 0
