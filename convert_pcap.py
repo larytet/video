@@ -92,30 +92,34 @@ def convert_image(arguments):
             logger.error("Failed to open file '{0}' for writing".format(filename_out))
             break
 
-    filename_image = filename_out+".png"
+        filename_image = filename_out+".png"
     
-    # Read the PCAP file , save the payload in a separate file
-    offset = int(offset_str, 16)
-    packets = savefile.load_savefile(filecap, verbose=True).packets
-    logger.info("Processing '{0}' packets, data offset {1}".format(len(packets), hex(offset)))
-    for packet in packets:
-        packet_raw = packet.raw()
-        fileout.write(packet_raw[offset:])
-    fileout.close()
+        # Read the PCAP file , save the payload in a separate file
+        offset = int(offset_str, 16)
+        packets = savefile.load_savefile(filecap, verbose=True).packets
+        logger.info("Processing '{0}' packets, data offset {1}".format(len(packets), hex(offset)))
+        for packet in packets:
+            packet_raw = packet.raw()
+            fileout.write(packet_raw[offset:])
+        fileout.close()
         
-    # Generate am image file 
-    img = Image.new('RGB', (320, 240), "black")
-    data = open(filename_out, 'rb').read()
-    pixels = []
-    count = len(data)
-    index = 0
-    # I assume R5 G6 B5
-    while (index < (count-2)):
-        pixel = get_pixel_rgb565_1(data, index)
-        pixels.append(pixel)
-        index = index + 2
-    img.putdata(pixels)
-    img.save(filename_image)
+        # Generate am image file 
+        img = Image.new('RGB', (320, 240), "black")
+        data = open(filename_out, 'rb').read()
+        pixels = []
+        count = len(data)
+        index = 0
+        # I assume R5 G6 B5
+        while (index < (count-2)):
+            pixel = get_pixel_rgb565_1(data, index)
+            pixels.append(pixel)
+            index = index + 2
+        img.putdata(pixels)
+        img.save(filename_image)
+        
+        break;
+    
+    
         
 if __name__ == '__main__':
     arguments = docopt(__doc__, version='PCAP converter')
