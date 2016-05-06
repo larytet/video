@@ -182,10 +182,10 @@ def run_udp_rx(arguments):
 
         try:
             udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            sock.bind(("127.0.0.1", udp_port))
+            udp_socket.bind(("127.0.0.1", udp_port))
         except Exception as e:
-            logger.error("Failed to bind UDP port {0}. Probably is bound by different application".format(udp_port))
-            logger.error(e.to_str())
+            logger.error("Failed to bind UDP port {0}".format(udp_port))
+            logger.error(e)
             break
         
         run_udp_rx_thread(filename_out, udp_socket, widht, height)
