@@ -23,6 +23,7 @@ Example:
 import sys
 import logging
 import re
+import socket
 try:
     from PIL import Image
 except:
@@ -155,6 +156,12 @@ def convert_image(arguments):
                     
         break;
     
+def run_udp_rx_thread(filename_base, udp_socket, width, heigh):
+    frame_index = 0            
+    filename_image = "{0}.{1}.rgb565".format(filename_base, frame_index))
+        
+        
+    
 def run_udp_rx(arguments):    
     while (True):
         filename_out = arguments["--fileout"]
@@ -173,8 +180,15 @@ def run_udp_rx(arguments):
             logger.error("Failed to parse UDP port number '{0}'".format(udp_port_str))
             break;
 
-        frame_index = 0            
-        filename_image = "{0}.{1}.png".format(filename_out, frame_index))
+        try:
+            udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            sock.bind(("127.0.0.1", udp_port))
+        except Exception as e:
+            logger.error("Failed to bind UDP port {0}. Probably is bound by different application".format(udp_port))
+            logger.error(e.to_str())
+            break
+        
+        run_udp_rx_thread(filename_out, udp_socket, widht, height)
         
         break
 
