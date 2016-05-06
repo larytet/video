@@ -224,6 +224,8 @@ def run_udp_rx_thread(filename_base, udp_socket, width, height):
             logger.warning("Got fragment {0} instead of expected fragment {1} in the frame {2}".format(
                 fragment_index, expected_fragment_index, frame_index))
         if frame_index is not expected_frame_index:
+            logger.warning("Got frame {0} instead of expected frame {1}".format(
+                frame_index, expected_frame_index))
             # This is a new frame
             if len(frame) < expected_frame_size:
                 logger.warning("Got {0} bytes instead of expected {1} bytes for the resolution {2}x{3} in frame {4}".format(
