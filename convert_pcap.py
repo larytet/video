@@ -309,8 +309,8 @@ def run_udptx(arguments):
     rate_limiter_period = 0.1
     rate_limter_frames = 0
     rate_limiter_timestamp = time.time()
+    udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     while True:
-        udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         packet = ""
         packet = packet + struct.pack("<H", frame_index)
         packet = packet + struct.pack("<I", fragment_index)
