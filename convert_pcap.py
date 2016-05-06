@@ -194,17 +194,17 @@ def run_udp_rx_thread(filename_base, udp_socket, width, height):
         frame = ""
         if not addr in received_udp_packets:  # very first time I see the UDP source IP
             logger.info("Got first packet from {0}".format(addr))
-            received_udp_packets[addr] = (frame, 0, 0, 0)
+            received_udp_packets[addr] = (frame, 0, 0, -1)
         (frame, received_frames, last_frame_index, last_fragment_index) = received_udp_packets[addr]
         logger.info("Got packet {0} from {1}".format(received_frames, addr))
 
         # Fetch the header (little endian)
-        frame_index = struct.unpack('<H', data[FRAME_INDEX_OFFSET:FRAME_INDEX_OFFSET+FRAME_INDEX_SIZE])
-        fragment_index = struct.unpack('<I', data[FRAGMENT_INDEX_OFFSET:FRAGMENT_INDEX_OFFSET+FRAGMENT_INDEX_SIZE])
+        frame_index = struct.unpack('<H', data[FRAME_INDEX_OFFSET:FRAME_INDEX_OFFSET+FRAME_INDEX_SIZE])[0]
+        fragment_index = struct.unpack('<I', data[FRAGMENT_INDEX_OFFSET:FRAGMENT_INDEX_OFFSET+FRAGMENT_INDEX_SIZE])[0]
 
         process_frame = False
         if last_fragment_index != (fragment_index-1):
-            logger.warning("Got fragment index {0} instead of expected fragment {1} in the frame {2}".format(
+            logger.warning("Got fragment {0} instead of expected fragment {1} in the frame {2}".format(
                 fragment_index, last_fragment_index+1, received_frames))
 
         if frame_index is not last_frame_index:
