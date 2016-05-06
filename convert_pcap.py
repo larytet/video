@@ -347,7 +347,9 @@ def run_udptx(arguments):
             frames_sent = frames_sent + 1
             
             delta_time = timestamp - rate_limiter_timestamp
-            time_to_sleep = (frames_sent/max_frame_rate) - delta_time
+            # Difference between the expected transmission time at the given frame rate 
+            # and actual time 
+            time_to_sleep = (frames_sent/max_frame_rate) - delta_time 
             if (time_to_sleep > 0):
                 time.sleep(time_to_sleep)
                 
@@ -358,7 +360,7 @@ def run_udptx(arguments):
                 logger.info("{:3.2f} fps, over {:2.3f}s".format(fps_calculated, delta_time))
                 fps = 0
                 fps_start = timestamp
-                fps_period = 5.0
+                #fps_period = 1.0
                 
             frame_index = frame_index + 1
             if (frame_index > 64*1024): frame_index = 0;
