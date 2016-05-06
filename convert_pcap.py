@@ -327,7 +327,7 @@ def run_udptx(arguments):
             # rate limiter
             delta_time = timestamp - rate_limiter_timestamp
             if delta_time > rate_limiter_period:
-                time_to_sleep = delta_time*((rate_limter_frames/delta_time) - max_frame_rate)/max_frame_rate
+                time_to_sleep = delta_time*(((rate_limter_frames+1)/delta_time) - max_frame_rate)/max_frame_rate
                 if time_to_sleep > 0:
                     time.sleep(time_to_sleep)
                 rate_limter_frames = 0
@@ -337,7 +337,7 @@ def run_udptx(arguments):
             delta_time = timestamp - fps_start
             if delta_time > fps_period:
                 fps_calculated = fps/delta_time
-                logger.info("{:3.1f} fps, over {:2.3f}s".format(fps_calculated, delta_time))
+                logger.info("{:3.2f} fps, over {:2.3f}s".format(fps_calculated, delta_time))
                 fps = 0
                 fps_start = timestamp
                 
