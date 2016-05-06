@@ -1,0 +1,5 @@
+pillow
+docopt
+pypcapfile
+logging
+
