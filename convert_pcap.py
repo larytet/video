@@ -172,8 +172,9 @@ def run_udp_rx(arguments):
         if (not result):
             logger.error("Failed to parse UDP port number '{0}'".format(udp_port_str))
             break;
-            
-        filename_image = filename_out+".png"
+
+        frame_index = 0            
+        filename_image = "{0}.{1}.png".format(filename_out, frame_index))
         
         break
 
