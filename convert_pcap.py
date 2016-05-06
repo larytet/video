@@ -282,6 +282,7 @@ def run_udptx(arguments):
     fragment_index = 0
     fragment_size = 1320
     bytes_sent = 0
+    fragments_sent = 0
     while True:
         udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         packet = []
@@ -296,11 +297,13 @@ def run_udptx(arguments):
         
         fragment_index = fragment_index + 1
         bytes_sent = bytes_sent + bytes_to_send
+        fragments_sent = fragments_sent + 1
         if bytes_sent > len(data):
-            logger.info("Sent frame {0}".format(frame_index))
+            logger.info("Completed frame {0}: {1} fragments, {2} bytes".format(frame_index, fragments_sent, bytes_sent))
             bytes_sent = 0
             fragment_index = 0
             frame_index = frame_index + 1
+            fragments_sent = 0
 
 if __name__ == '__main__':
     arguments = docopt(__doc__, version='PCAP converter')
