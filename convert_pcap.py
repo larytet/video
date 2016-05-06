@@ -36,7 +36,21 @@ try:
 except:
     print "Try 'pip install -U pypcapfile'" 
     
-    
+
+def openFile(filename, flag):
+    '''
+    Open a file for reading or writing
+    Returns handle to the open file and result code False/True
+    '''
+    try:
+        fileHandle = open(filename, flag) # read text file
+    except Exception:
+        logger.error('Failed to open file {0}'.format(filename))
+        print sys.exc_info()
+        return (False, None)
+    else:
+        return (True, fileHandle)
+        
 def get_mask(bits):
     return ((1 << bits) - 1)     
 
@@ -60,29 +74,40 @@ def get_pixel_rgb565_1(data, index):
     green = ((get_bits(rgb, 5, 6) * 259) + 33) >> 6 # g = ((((color >> 5) & 0x3F) * 259) + 33) >> 6;
     blue = ((get_bits(rgb, 0, 5) * 527) + 23) >> 6 # b = (((color & 0x1F) * 527) + 23) >> 6;
     return (red, green, blue)
-    
+
+
+def convert_image(arguments):
+    while (True):
+        filename_in = arguments["--filein"]
+        filename_out = arguments["--fileout"]
+        offset_str = arguments["--offset"]
+        (result, filecap) = openFile(filename_in, 'rb')
+        if (not result):
+            logger.error("Failed to open file '{0}' for reading".format(filename))
+            break
+
+        (result, filecap) = openFile(filename_in, 'wb')
+        if (not result):
+            logger.error("Failed to open file '{0}' for writing".format(filename_out))
+            break
+        
 if __name__ == '__main__':
-    pass
     arguments = docopt(__doc__, version='PCAP converter')
+    
     logging.basicConfig()    
     logger = logging.getLogger('pcap')
     logger.setLevel(logging.INFO)    
-    is_convert = arguments["convert"]
-    filename = arguments["--filein"]
-    filename_out = arguments["--fileout"]
-    offset_str = arguments["--offset"]
     
-    try:
-        filecap = open(filename, 'rb')
-    except:
-        logger.error("Failed to open file '{0}' for reading".format(filename))
-        exit(-1)
-
-    try:
-        fileout = open(filename_out, 'wb')
-    except:
-        logger.error("Failed to open file '{0}' for writing".format(filename_out))
-        exit(-1)
+    is_convert = arguments["convert"]
+    is_udprx = arguments["udprx"]
+    is_udptx = arguments["udptx"]
+    
+    if (is_convert):
+        convert_image(argumnets)
+    if (is_udprx):
+        run_udp_rx(argumnets)
+    if (is_udptx):
+        run_udptx(argumnets)
         
     filename_image = filename_out+".png"
     
