@@ -180,7 +180,7 @@ def convert_image(arguments):
 
         break
     
-def save_frame_to_file(filename_base, frame):
+def save_frame_to_file(filename_base, frame, frame_index):
     filename_image = "{0}.{1}.rgb565".format(filename_base, frame_index)
     (result, fileout) = open_file(filename_image, "wb")
     if (result):
@@ -196,29 +196,42 @@ def run_udp_rx_thread(filename_base, udp_socket, width, height):
 
     # Dictionary of the received UDP packets. The key is source IP address
     received_udp_packets = {}
+    received_fragments = 0
+    last_frame = 0
+    rx_buffer_size = 640*480*2*1024
+    packet_size = 1326
     while True:
         try:
-            data, addr = udp_socket.recvfrom(1450)
+            data, addr = udp_socket.recvfrom(rx_buffer_size)
+            received_fragments =  received_fragments + 1
+            if (len(data) != packet_size):
+                logger.info("{0} bytes, {1}".format(len(data), received_fragments))
+                received_fragments = 0
         except Exception as e:
             logger.error("Failed to read UDP socket")
             logger.error(e)
             break
+        '''
         frame = ""
         if not addr in received_udp_packets:  # very first time I see the UDP source IP
             logger.info("Got first packet from {0}".format(addr))
             received_udp_packets[addr] = (frame, 0, 0, 0)
-        (frame, received_frames, expected_fragment_index, expected_frame_index) = received_udp_packets[addr]
+        #(frame, received_frames, expected_fragment_index, expected_frame_index) = received_udp_packets[addr]
 
         # Fetch the header (little endian)
         frame_index = struct.unpack('<H', data[FRAME_INDEX_OFFSET:FRAME_INDEX_OFFSET+FRAME_INDEX_SIZE])[0]
         fragment_index = struct.unpack('<I', data[FRAGMENT_INDEX_OFFSET:FRAGMENT_INDEX_OFFSET+FRAGMENT_INDEX_SIZE])[0]
-        logger.info("Got frame {0}, fragment {1} from {2}".format(frame_index, fragment_index, addr))
-
+        #logger.info("Got frame {0}, fragment {1} from {2}".format(frame_index, fragment_index, addr))
+        if frame_index != last_frame:
+            logger.info("Got frame {0}, fragment {1} from {2}, fragments {3}".format(frame_index, fragment_index, addr, received_fragments))
+            received_fragments = 0
+            last_frame = frame_index
+            
+        
         process_frame = False 
         if expected_fragment_index != fragment_index:
             logger.warning("Got fragment {0} instead of expected fragment {1} in the frame {2}".format(
                 fragment_index, expected_fragment_index, frame_index))
-
         if frame_index is not expected_frame_index:
             # This is a new frame
             if len(frame) < expected_frame_size:
@@ -242,12 +255,13 @@ def run_udp_rx_thread(filename_base, udp_socket, width, height):
 
         # The 'frame' contains a whole image - save the data to the rgb565 file
         if process_frame:
-            thread.start_new_thread(save_frame_to_file, (filename_base, frame))
+            thread.start_new_thread(save_frame_to_file, (filename_base, frame, frame_index))
             frame = ""
 
         # update the dictionary
         received_udp_packets[addr] = (frame, received_frames, expected_fragment_index, expected_frame_index)
         received_frames = received_frames + 1
+        '''
 
 def run_udp_rx(arguments):
     while True:
@@ -315,17 +329,16 @@ def run_udptx(arguments):
     fragments_sent = 0
     fps = 0
     fps_start = time.time()
-    fps_period = 3.0
-    rate_limiter_period = 0.1
-    rate_limter_frames = 0
     rate_limiter_timestamp = time.time()
+    fps_period = 3.0
+    
     udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     while True:
         packet = ""
         packet = packet + struct.pack("<H", frame_index)
         packet = packet + struct.pack("<I", fragment_index)
         bytes_to_send = fragment_size
-        if (bytes_to_send+bytes_sent) > len(data):
+        if (fragment_size+bytes_sent) > len(data):
             bytes_to_send = len(data) - bytes_sent
         packet = packet + data[bytes_sent:bytes_sent+bytes_to_send]
         #logger.info("Sending frame {0}, fragment {1}, {2} bytes from {3}".format(frame_index, fragment_index, bytes_sent, len(data)))
@@ -336,19 +349,14 @@ def run_udptx(arguments):
         fragments_sent = fragments_sent + 1
         if bytes_sent >= len(data):
             timestamp = time.time()
-            frame_index = frame_index + 1
-            if (frame_index > 64*1024): frame_index = 0;
-            fps = fps + 1
-            rate_limter_frames = rate_limter_frames + 1
             
-            # rate limiter
+            fps = fps + 1
+            
             delta_time = timestamp - rate_limiter_timestamp
-            if delta_time > rate_limiter_period:
-                time_to_sleep = delta_time*(((rate_limter_frames+1)/delta_time) - max_frame_rate)/max_frame_rate
-                if time_to_sleep > 0:
-                    time.sleep(time_to_sleep)
-                rate_limter_frames = 0
-                rate_limiter_timestamp = timestamp
+            time_to_sleep = (1.0/max_frame_rate) - delta_time/max_frame_rate
+            if (time_to_sleep > 0):
+                time.sleep(time_to_sleep)
+            rate_limiter_timestamp = timestamp
                 
             # print rate
             delta_time = timestamp - fps_start
@@ -358,6 +366,8 @@ def run_udptx(arguments):
                 fps = 0
                 fps_start = timestamp
                 
+            frame_index = frame_index + 1
+            if (frame_index > 64*1024): frame_index = 0;
             bytes_sent = 0
             fragment_index = 0
             fragments_sent = 0
