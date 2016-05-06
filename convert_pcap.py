@@ -66,7 +66,7 @@ def open_file(filename, flag):
         return (True, fileHandle)
 
 def get_mask(bits):
-    return ((1 << bits) - 1)
+    return (1 << bits) - 1
 
 
 def get_bits(value, start, bits):
@@ -84,9 +84,9 @@ def get_pixel_rgb565(data, index):
 
 def get_pixel_rgb565_1(data, index):
     rgb = (ord(data[index]) << 0) | (ord(data[index+1]) << 8)
-    red = ((get_bits(rgb, 11, 5) * 527) + 23) >> 6 
+    red = ((get_bits(rgb, 11, 5) * 527) + 23) >> 6
     green = ((get_bits(rgb, 5, 6) * 259) + 33) >> 6
-    blue = ((get_bits(rgb, 0, 5) * 527) + 23) >> 6 
+    blue = ((get_bits(rgb, 0, 5) * 527) + 23) >> 6
     return (red, green, blue)
 
 
@@ -94,45 +94,46 @@ def parse_arguments_resolution(resolution_arg):
     pattern = "([0-9]+).([0-9]+)"
     m = re.match(pattern, resolution_arg)
     result = (m is not None)
-    
-    if (result):
+
+    if result:
         (_, width) = convert_to_int(m.group(1), 10)
         (_, height) = convert_to_int(m.group(2), 10)
         return (result, width, height)
     logger.error("Failed to parse image resolution '{0}' ".format(resolution_arg))
     return (result, None, None)
-    
+
 def convert_image(arguments):
-    while (True):
+    while True:
         filename_in = arguments["--filein"]
         filename_out = arguments["--fileout"]
         offset_str = arguments["--offset"]
         (result, filecap) = open_file(filename_in, 'rb')
-        if (not result):
+        if not result:
             logger.error("Failed to open file '{0}' for reading".format(filename_in))
             break
 
         (result, fileout) = open_file(filename_out, 'wb')
-        if (not result):
+        if not result:
             logger.error("Failed to open file '{0}' for writing".format(filename_out))
             break
 
 
         (result, width, height) = parse_arguments_resolution(arguments["--resolution"])
-        if (not result):
+        if not result:
             break
-            
+
         filename_image = filename_out+".png"
-    
+
         # Read the PCAP file , save the payload in a separate file
         offset = int(offset_str, 16)
         packets = savefile.load_savefile(filecap, verbose=True).packets
-        logger.info("Processing '{0}' packets, data offset {1}, resolution {2}x{3}".format(len(packets), hex(offset), width, height))
+        logger.info("Processing '{0}' packets, data offset {1}, resolution {2}x{3}".format(
+            len(packets), hex(offset), width, height))
         for packet in packets:
             packet_raw = packet.raw()
             fileout.write(packet_raw[offset:])
         fileout.close()
-        
+
         # Generate am image file 
         img = Image.new('RGB', (width, height), "black")
         data = open(filename_out, 'rb').read()
