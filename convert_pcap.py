@@ -20,7 +20,6 @@ Example:
     ./convert_pcap.py convert --filein=udp.pcap --offset=0x30 --fileout=udp.pcap.bin
 '''
 
-import sys
 import logging
 import re
 import socket
@@ -223,7 +222,7 @@ def run_udp_rx_thread(filename_base, udp_socket, width, height):
                 fileout.close()
             else:
                 logger.warning("Failed to open file {0} for writing, drop frame {1}".format(
-                    len(filename_image, frame_index))
+                    filename_image, frame_index))
             frame = []
 
         # update the dictionary
@@ -260,7 +259,7 @@ def run_udp_rx(arguments):
 
         break
 
-def run_udp_tx(arguments):
+def run_udptx(arguments):
     while True:
         filename_out = arguments["--fileout"]
         (result, fileout) = open_file(filename_out, 'wb')
