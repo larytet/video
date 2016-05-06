@@ -320,6 +320,7 @@ def run_udptx(arguments):
         if bytes_sent >= len(data):
             timestamp = time.time()
             frame_index = frame_index + 1
+            if (frame_index > 64*1024): frame_index = 0;
             fps = fps + 1
             rate_limter_frames = rate_limter_frames + 1
             
