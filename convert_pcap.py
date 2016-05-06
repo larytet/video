@@ -155,7 +155,18 @@ def convert_image(arguments):
                     
         break;
     
+def run_udp_rx(arguments):    
+    filename_out = arguments["--fileout"]
+    (result, fileout) = open_file(filename_out, 'wb')
+    if (not result):
+        logger.error("Failed to open file '{0}' for writing".format(filename_out))
+        break
     
+    (result, width, height) = parse_arguments_resolution(arguments["--resolution"])
+    if (not result):
+        break
+        
+    filename_image = filename_out+".png"
         
 if __name__ == '__main__':
     arguments = docopt(__doc__, version='PCAP converter')
@@ -170,8 +181,8 @@ if __name__ == '__main__':
     
     if (is_convert):
         convert_image(arguments)
-    if (is_udprx):
+    elif (is_udprx):
         run_udp_rx(arguments)
-    if (is_udptx):
+    elif (is_udptx):
         run_udptx(arguments)
         
