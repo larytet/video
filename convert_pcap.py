@@ -108,6 +108,15 @@ def parse_arguments_resolution(resolution_arg):
     logger.error("Failed to parse image resolution '{0}' ".format(resolution_arg))
     return (result, None, None)
 
+FRAME_INDEX_OFFSET = 0 # bytes
+FRAME_INDEX_SIZE = 2 # bytes
+
+FRAGMENT_INDEX_OFFSET = FRAME_INDEX_OFFSET+FRAME_INDEX_SIZE
+FRAGMENT_INDEX_SIZE = 4 # bytes
+
+HEADER_SIZE = FRAGMENT_INDEX_SIZE + FRAME_INDEX_SIZE
+
+
 def convert_image(arguments):
     while True:
         filename_in = arguments["--filein"]
@@ -130,25 +139,27 @@ def convert_image(arguments):
 
         filename_image = filename_out+".png"
 
-        # Read the PCAP file , save the payload in a separate file
+        # Read the PCAP file , save the payload (RGB565) in a separate file
         offset = int(offset_str, 16)
         packets = savefile.load_savefile(filecap, verbose=True).packets
         logger.info("Processing '{0}' packets, data offset {1}, resolution {2}x{3}".format(
             len(packets), hex(offset), width, height))
         for packet in packets:
             packet_raw = packet.raw()
+            #frame_index = struct.unpack('<I', data[FRAME_INDEX_OFFSET:FRAME_INDEX_OFFSET+FRAME_INDEX_SIZE])
+            #fragment_index = struct.unpack('<I', data[FRAGMENT_INDEX_OFFSET:FRAGMENT_INDEX_OFFSET+FRAGMENT_INDEX_SIZE])
             fileout.write(packet_raw[offset:])
         fileout.close()
 
         # Generate am image file
         img = Image.new('RGB', (width, height), "black")
-        data = open(filename_out, 'rb').read()
+        data = open(filename_out, 'rb').read() # read the RGB565 data from the filename_out 
         pixels = []
         count = len(data)
         expected_count = width * height
         index = 0
         # I assume R5 G6 B5
-        while index < (count-2):
+        while index <= (count-2):
             pixel = get_pixel_rgb565_1(data, index)
             pixels.append(pixel)
             index = index + 2
@@ -163,17 +174,9 @@ def convert_image(arguments):
                 width, height, expected_count, len(pixels)))
         img.putdata(pixels)
         img.save(filename_image)
-        logger.warning("Generated file {0}".format(filename_image))
+        logger.info("Generated file {0}".format(filename_image))
 
         break
-
-FRAME_INDEX_OFFSET = 0 # bytes
-FRAME_INDEX_SIZE = 2 # bytes
-
-FRAGMENT_INDEX_OFFSET = FRAME_INDEX_OFFSET+FRAME_INDEX_SIZE
-FRAGMENT_INDEX_SIZE = 4 # bytes
-
-HEADER_SIZE = FRAGMENT_INDEX_SIZE + FRAME_INDEX_SIZE
 
 def run_udp_rx_thread(filename_base, udp_socket, width, height):
     expected_frame_size = width * height * 2
