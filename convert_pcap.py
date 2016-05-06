@@ -156,10 +156,22 @@ def convert_image(arguments):
                     
         break;
     
+    
 def run_udp_rx_thread(filename_base, udp_socket, width, heigh):
     frame_index = 0            
     filename_image = "{0}.{1}.rgb565".format(filename_base, frame_index)
+    
+    # Dictionary of the received UDP packets. The key is source IP address
+    received_udp_packets = {}     
+    while (True):
+        try:
+            data, addr = udp_socket.recvfrom(1450)
+        except Exception as e:
+            logger.error("Failed to read UDP socket")
+            logger.error(e)
+            break
         
+            
         
     
 def run_udp_rx(arguments):    
@@ -188,7 +200,7 @@ def run_udp_rx(arguments):
             logger.error(e)
             break
         
-        run_udp_rx_thread(filename_out, udp_socket, widht, height)
+        run_udp_rx_thread(filename_out, udp_socket, width, height)
         
         break
 
