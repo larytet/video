@@ -158,7 +158,7 @@ def convert_image(arguments):
     
 def run_udp_rx_thread(filename_base, udp_socket, width, heigh):
     frame_index = 0            
-    filename_image = "{0}.{1}.rgb565".format(filename_base, frame_index))
+    filename_image = "{0}.{1}.rgb565".format(filename_base, frame_index)
         
         
     
