@@ -135,15 +135,18 @@ def convert_image(arguments):
         data = open(filename_out, 'rb').read()
         pixels = []
         count = len(data)
+        expected_count = width * height * (16/8)  # 16 bits per pixel
         index = 0
         # I assume R5 G6 B5
         while (index < (count-2)):
             pixel = get_pixel_rgb565_1(data, index)
             pixels.append(pixel)
             index = index + 2
+        if (index < expected_count):
+            logger.info("Not enough data for the image {0}x{1}. Expected {2} bytes, got {3} bytes".format(width, height, expected_count, index))
         img.putdata(pixels)
         img.save(filename_image)
-        
+                    
         break;
     
     
