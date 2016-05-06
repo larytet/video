@@ -352,6 +352,9 @@ def run_udptx(arguments):
             time_to_sleep = (frames_sent/max_frame_rate) - delta_time 
             if (time_to_sleep > 0):
                 time.sleep(time_to_sleep)
+            if (delta_time > 10.0):  # Avoid overflow in the counters
+                rate_limiter_timestamp = time.time()
+                
                 
             # print rate
             delta_time = timestamp - fps_start
