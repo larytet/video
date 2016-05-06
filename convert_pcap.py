@@ -6,7 +6,7 @@
 Usage:
     convert_pcap.py convert --filein=FILENAME --offset=OFFSET --fileout=FILENAME --resolution=WIDTH,HEIGHT
     convert_pcap.py udprx --fileout=FILENAME --port=UDP_PORT --resolution=WIDTH,HEIGHT
-    convert_pcap.py udptx --filein=FILENAME --port=UDP_PORT --ip=IP_ADDRESS
+    convert_pcap.py udptx --filein=FILENAME --port=UDP_PORT --ip=IP_ADDRESS --rate=FRAME_RATE
 
 
 Options:
@@ -16,6 +16,7 @@ Options:
     --resolution=WIDTH,HEIGHT resolution of the image to process
     --port=UDP_PORT destination port for transmit, source port for recieve
     --ip=IP_ADDRESS destination IP address
+    --rate=FRAME_RATE maximum frame rate for transmit in frames per second
 
 Example:
     ./convert_pcap.py convert --filein=udp.pcap --offset=0x30 --fileout=udp.pcap.bin
@@ -25,6 +26,7 @@ import logging
 import re
 import socket
 import struct
+import time
 
 try:
     from PIL import Image
@@ -273,6 +275,12 @@ def run_udptx(arguments):
         if not result:
             logger.error("Failed to parse UDP port number '{0}'".format(udp_port_str))
             break
+
+        max_frame_rate_str = arguments["--rate"]
+        (result, max_frame_rate) = convert_to_int(max_frame_rate_str, 10)
+        if not result:
+            logger.error("Failed to parse frame rate '{0}'".format(max_frame_rate_str))
+            break
         
         ip_address = arguments["--ip"]
         
@@ -288,7 +296,9 @@ def run_udptx(arguments):
     fragment_size = 1320
     bytes_sent = 0
     fragments_sent = 0
-    
+    fps = 0
+    fps_start = time.time()
+    fps_period = 1.0
     while True:
         udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         packet = ""
@@ -298,17 +308,26 @@ def run_udptx(arguments):
         if (bytes_to_send+bytes_sent) > len(data):
             bytes_to_send = len(data) - bytes_sent
         packet = packet + data[bytes_sent:bytes_sent+bytes_to_send]
-        logger.info("Sending frame {0}, fragment {1}, {2} bytes from {3}".format(frame_index, fragment_index, bytes_sent, len(data)))
+        #logger.info("Sending frame {0}, fragment {1}, {2} bytes from {3}".format(frame_index, fragment_index, bytes_sent, len(data)))
         udp_socket.sendto(packet, (ip_address, udp_port))
         
         fragment_index = fragment_index + 1
         bytes_sent = bytes_sent + bytes_to_send
         fragments_sent = fragments_sent + 1
         if bytes_sent >= len(data):
-            logger.info("Completed frame {0}: {1} fragments, {2} bytes".format(frame_index, fragments_sent, bytes_sent))
+            frame_index = frame_index + 1
+            fps = fps + 1
+            delta_time = time.time() - fps_start
+            if delta_time > fps_period:
+                fps_start = time.time()
+                fps_calculated = fps/delta_time
+                logger.info("{:3.1f} fps, over {:2.1f}s".format(fps_calculated, delta_time))
+                fps = 0
+                time_to_sleep = ((fps_calculated-max_frame_rate)*fps_period)/max_frame_rate
+                if time_to_sleep > 0:
+                    time.sleep(time_to_sleep)
             bytes_sent = 0
             fragment_index = 0
-            frame_index = frame_index + 1
             fragments_sent = 0
 
 if __name__ == '__main__':
