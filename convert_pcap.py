@@ -191,7 +191,7 @@ def run_udp_rx_thread(filename_base, udp_socket, width, height):
             logger.error("Failed to read UDP socket")
             logger.error(e)
             break
-        frame = []
+        frame = ""
         if not addr in received_udp_packets:  # very first time I see the UDP source IP
             logger.info("Got first packet from {0}".format(addr))
             received_udp_packets[addr] = (frame, 0, 0, 0)
@@ -199,24 +199,26 @@ def run_udp_rx_thread(filename_base, udp_socket, width, height):
         logger.info("Got packet {0} from {1}".format(received_frames, addr))
 
         # Fetch the header (little endian)
-        frame_index = struct.unpack('<I', data[FRAME_INDEX_OFFSET:FRAME_INDEX_OFFSET+FRAME_INDEX_SIZE])
+        frame_index = struct.unpack('<H', data[FRAME_INDEX_OFFSET:FRAME_INDEX_OFFSET+FRAME_INDEX_SIZE])
         fragment_index = struct.unpack('<I', data[FRAGMENT_INDEX_OFFSET:FRAGMENT_INDEX_OFFSET+FRAGMENT_INDEX_SIZE])
 
-        frame.append()
         process_frame = False
         if last_fragment_index != (fragment_index-1):
             logger.warning("Got fragment index {0} instead of expected fragment {1} in the frame {2}".format(
                 fragment_index, last_fragment_index+1, received_frames))
 
-        if len(frame) > expected_frame_size:
-            logger.warning("Got {0} bytes instead of expected {1} bytes for the resolution {2}x{3} in frame {4}. Ignore the data".format(
-                len(frame), expected_frame_size, width, height, received_frames))
-        elif frame_index is not last_frame_index:
+        if frame_index is not last_frame_index:
             # This is a new frame
             if len(frame) < expected_frame_size:
                 logger.warning("Got {0} bytes instead of expected {1} bytes for the resolution {2}x{3} in frame {4}".format(
                     len(frame), expected_frame_size, width, height, received_frames))
             process_frame = True
+        else:
+            frame = frame + data[HEADER_SIZE:]
+            
+        if len(frame) > expected_frame_size:
+            logger.warning("Got {0} bytes instead of expected {1} bytes for the resolution {2}x{3} in frame {4}. Ignore the data".format(
+                len(frame), expected_frame_size, width, height, received_frames))
         elif len(frame) >= expected_frame_size:
             process_frame = True
 
@@ -227,6 +229,7 @@ def run_udp_rx_thread(filename_base, udp_socket, width, height):
             if (result):
                 fileout.write(frame)
                 fileout.close()
+                logger.info("Generated file {0}".format(filename_image))
             else:
                 logger.warning("Failed to open file {0} for writing, drop frame {1}".format(
                     filename_image, frame_index))
