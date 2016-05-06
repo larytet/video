@@ -297,7 +297,7 @@ def run_udptx(arguments):
         if (bytes_to_send+bytes_sent) > len(data):
             bytes_to_send = len(data) - bytes_sent
         packet = packet + data[bytes_sent:bytes_sent+bytes_to_send]
-        logger.info("Sending fragment {0}, frame {1} ...".format(frame_index, fragment_index))
+        logger.info("Sending frame {0}, fragment {1} ...".format(frame_index, fragment_index))
         udp_socket.sendto(packet, (ip_address, udp_port))
         
         fragment_index = fragment_index + 1
