@@ -196,37 +196,28 @@ def run_udp_rx_thread(filename_base, udp_socket, width, height):
 
     # Dictionary of the received UDP packets. The key is source IP address
     received_udp_packets = {}
-    received_fragments = 0
-    last_frame = 0
-    rx_buffer_size = 640*480*2*1024
-    packet_size = 1326
+    rx_buffer_size = 1500
     while True:
         try:
             data, addr = udp_socket.recvfrom(rx_buffer_size)
-            received_fragments =  received_fragments + 1
-            if (len(data) != packet_size):
-                logger.info("{0} bytes, {1}".format(len(data), received_fragments))
-                received_fragments = 0
         except Exception as e:
             logger.error("Failed to read UDP socket")
             logger.error(e)
             break
-        '''
-        frame = ""
+        
         if not addr in received_udp_packets:  # very first time I see the UDP source IP
             logger.info("Got first packet from {0}".format(addr))
-            received_udp_packets[addr] = (frame, 0, 0, 0)
-        #(frame, received_frames, expected_fragment_index, expected_frame_index) = received_udp_packets[addr]
+            received_udp_packets[addr] = ("", 0, 0, 0)
+        (frame, received_frames, expected_fragment_index, expected_frame_index) = received_udp_packets[addr]
 
         # Fetch the header (little endian)
         frame_index = struct.unpack('<H', data[FRAME_INDEX_OFFSET:FRAME_INDEX_OFFSET+FRAME_INDEX_SIZE])[0]
         fragment_index = struct.unpack('<I', data[FRAGMENT_INDEX_OFFSET:FRAGMENT_INDEX_OFFSET+FRAGMENT_INDEX_SIZE])[0]
         #logger.info("Got frame {0}, fragment {1} from {2}".format(frame_index, fragment_index, addr))
-        if frame_index != last_frame:
-            logger.info("Got frame {0}, fragment {1} from {2}, fragments {3}".format(frame_index, fragment_index, addr, received_fragments))
+        if frame_index != expected_frame_index:
+            logger.info("Got frame {0}, fragment {1} from {2}, instead of expected fragment {3}".format(frame_index, fragment_index, addr, expected_fragment_index))
             received_fragments = 0
-            last_frame = frame_index
-            
+            expected_frame_index = frame_index
         
         process_frame = False 
         if expected_fragment_index != fragment_index:
@@ -261,7 +252,6 @@ def run_udp_rx_thread(filename_base, udp_socket, width, height):
         # update the dictionary
         received_udp_packets[addr] = (frame, received_frames, expected_fragment_index, expected_frame_index)
         received_frames = received_frames + 1
-        '''
 
 def run_udp_rx(arguments):
     while True:
