@@ -1,21 +1,21 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Get a recorded PCAP file, assume that payload is 16 bits RGB565, save the payload to the PNG image file 
-# Data can come from OV7691 
+# Get a recorded PCAP file, assume that payload is 16 bits RGB565, save the payload to the PNG image file
+# Data can come from OV7691
 '''
 Usage:
     convert_pcap.py convert --filein=FILENAME --offset=OFFSET --fileout=FILENAME --resolution=WIDTH,HEIGHT
     convert_pcap.py udprx --fileout=FILENAME --port=UDP_PORT --resolution=WIDTH,HEIGHT
     convert_pcap.py udptx --filein=FILENAME --port=UDP_PORT
-    
-    
+
+
 Options:
     --filein=FILENAME file to convert
     --offset=OFFSET offset of the data in the Ethernet packet payload (HEX)
     --fileout=FILENAME file to generate
     --resolution=WIDTH,HEIGHT resolution of the image to process
-    --port=UDP_PORT destination port for transmit, source port for recieve 
-    
+    --port=UDP_PORT destination port for transmit, source port for recieve
+
 Example:
     ./convert_pcap.py convert --filein=udp.pcap --offset=0x30 --fileout=udp.pcap.bin
 '''
@@ -29,27 +29,27 @@ import struct
 try:
     from PIL import Image
 except:
-    print "Try 'pip install -U pillow'" 
-     
+    print "Try 'pip install -U pillow'"
+
 try:
     from docopt import docopt
 except:
-    print "Try 'pip install -U docopt'" 
-    
+    print "Try 'pip install -U docopt'"
+
 try:
     from pcapfile import savefile
 except:
-    print "Try 'pip install -U pypcapfile'" 
-    
+    print "Try 'pip install -U pypcapfile'"
+
 def convert_to_int(s, base):
-    value = None;
+    value = None
     try:
-        value = int(s, base);
-        result = True;
+        value = int(s, base)
+        result = True
     except:
-        logger.error("Bad formed number '{0}'".format(s));
-        result = False;
-    return (result, value);
+        logger.error("Bad formed number '{0}'".format(s))
+        result = False
+    return (result, value)
 
 def open_file(filename, flag):
     '''
@@ -64,9 +64,9 @@ def open_file(filename, flag):
         return (False, None)
     else:
         return (True, fileHandle)
-        
+
 def get_mask(bits):
-    return ((1 << bits) - 1)     
+    return ((1 << bits) - 1)
 
 
 def get_bits(value, start, bits):
@@ -84,9 +84,9 @@ def get_pixel_rgb565(data, index):
 
 def get_pixel_rgb565_1(data, index):
     rgb = (ord(data[index]) << 0) | (ord(data[index+1]) << 8)
-    red = ((get_bits(rgb, 11, 5) * 527) + 23) >> 6  # r = ((((color >> 11) & 0x1F) * 527) + 23) >> 6;
-    green = ((get_bits(rgb, 5, 6) * 259) + 33) >> 6 # g = ((((color >> 5) & 0x3F) * 259) + 33) >> 6;
-    blue = ((get_bits(rgb, 0, 5) * 527) + 23) >> 6 # b = (((color & 0x1F) * 527) + 23) >> 6;
+    red = ((get_bits(rgb, 11, 5) * 527) + 23) >> 6 
+    green = ((get_bits(rgb, 5, 6) * 259) + 33) >> 6
+    blue = ((get_bits(rgb, 0, 5) * 527) + 23) >> 6 
     return (red, green, blue)
 
 
