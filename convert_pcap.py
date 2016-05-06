@@ -238,7 +238,7 @@ def run_udp_rx(arguments):
         (result, udp_port) = convert_to_int(udp_port_str, 10)
         if not result:
             logger.error("Failed to parse UDP port number '{0}'".format(udp_port_str))
-            break;
+            break
 
         try:
             udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -247,42 +247,41 @@ def run_udp_rx(arguments):
             logger.error("Failed to bind UDP port {0}".format(udp_port))
             logger.error(e)
             break
-        
+
         run_udp_rx_thread(filename_out, udp_socket, width, height)
-        
+
         break
 
 def run_udp_tx(arguments):
-    while (True):    
+    while True:    
         filename_out = arguments["--fileout"]
         (result, fileout) = open_file(filename_out, 'wb')
-        if (not result):
+        if not result:
             logger.error("Failed to open file '{0}' for writing".format(filename_out))
             break
-        
+
         (result, width, height) = parse_arguments_resolution(arguments["--resolution"])
-        if (not result):
+        if not result:
             break
-            
+
         filename_image = filename_out+".png"
-        
+
         break
-        
+
 if __name__ == '__main__':
     arguments = docopt(__doc__, version='PCAP converter')
-    
-    logging.basicConfig()    
+
+    logging.basicConfig()
     logger = logging.getLogger('pcap')
-    logger.setLevel(logging.INFO)    
-    
+    logger.setLevel(logging.INFO)
+
     is_convert = arguments["convert"]
     is_udprx = arguments["udprx"]
     is_udptx = arguments["udptx"]
-    
-    if (is_convert):
+
+    if is_convert:
         convert_image(arguments)
-    elif (is_udprx):
+    elif is_udprx:
         run_udp_rx(arguments)
-    elif (is_udptx):
+    elif is_udptx:
         run_udptx(arguments)
-        
