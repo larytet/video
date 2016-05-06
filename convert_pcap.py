@@ -203,9 +203,9 @@ def run_udp_rx_thread(filename_base, udp_socket, width, height):
                 len(frame), expected_frame_size, width, height, received_frames))
         elif frame_index is not last_frame_index:
             # This is a new frame
-            if (len(frame) < expected_frame_size):
+            if len(frame) < expected_frame_size:
                 logger.warning("Got {0} bytes instead of expected {1} bytes for the resolution {2}x{3} in frame {4}".format(
-                len(frame), expected_frame_size, width, height, received_frames))
+                    len(frame), expected_frame_size, width, height, received_frames))
             process_frame = True
         elif len(frame) >= expected_frame_size:
             process_frame = True
@@ -222,21 +222,21 @@ def run_udp_rx_thread(filename_base, udp_socket, width, height):
         received_udp_packets[addr] = (frame, received_frames, frame_index, fragment_index)
         received_frames = received_frames + 1
 
-def run_udp_rx(arguments):    
-    while (True):
+def run_udp_rx(arguments):
+    while True:
         filename_out = arguments["--fileout"]
         (result, fileout) = open_file(filename_out, 'wb')
-        if (not result):
+        if not result:
             logger.error("Failed to open file '{0}' for writing".format(filename_out))
             break
-        
+
         (result, width, height) = parse_arguments_resolution(arguments["--resolution"])
-        if (not result):
+        if not result:
             break
-        
+
         udp_port_str = arguments["--port"]
         (result, udp_port) = convert_to_int(udp_port_str, 10)
-        if (not result):
+        if not result:
             logger.error("Failed to parse UDP port number '{0}'".format(udp_port_str))
             break;
 
