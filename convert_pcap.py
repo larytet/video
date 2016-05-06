@@ -116,7 +116,7 @@ def convert_image(arguments):
 
 
         (result, width, height) = parse_arguments_resolution(arguments["--resolution"])
-        if (not result:
+        if (not result):
             break
             
         filename_image = filename_out+".png"
