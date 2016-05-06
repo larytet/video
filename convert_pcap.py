@@ -288,6 +288,7 @@ def run_udptx(arguments):
     fragment_size = 1320
     bytes_sent = 0
     fragments_sent = 0
+    
     while True:
         udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         packet = ""
@@ -297,13 +298,13 @@ def run_udptx(arguments):
         if (bytes_to_send+bytes_sent) > len(data):
             bytes_to_send = len(data) - bytes_sent
         packet = packet + data[bytes_sent:bytes_sent+bytes_to_send]
-        logger.info("Sending frame {0}, fragment {1} ...".format(frame_index, fragment_index))
+        logger.info("Sending frame {0}, fragment {1}, {2} bytes from {3}".format(frame_index, fragment_index, bytes_sent, len(data)))
         udp_socket.sendto(packet, (ip_address, udp_port))
         
         fragment_index = fragment_index + 1
         bytes_sent = bytes_sent + bytes_to_send
         fragments_sent = fragments_sent + 1
-        if bytes_sent > len(data):
+        if bytes_sent >= len(data):
             logger.info("Completed frame {0}: {1} fragments, {2} bytes".format(frame_index, fragments_sent, bytes_sent))
             bytes_sent = 0
             fragment_index = 0
