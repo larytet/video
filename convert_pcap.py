@@ -38,7 +38,7 @@ try:
 except:
     print "Try 'pip install -U pypcapfile'" 
     
-def convertToInt(s, base):
+def convert_to_int(s, base):
     value = None;
     try:
         value = int(s, base);
@@ -48,7 +48,7 @@ def convertToInt(s, base):
         result = False;
     return (result, value);
 
-def openFile(filename, flag):
+def open_file(filename, flag):
     '''
     Open a file for reading or writing
     Returns handle to the open file and result code False/True
@@ -91,40 +91,47 @@ def parse_arguments_resolution(resolution_arg):
     pattern = "([0-9]+).([0-9]+)"
     m = re.match(pattern, resolution_arg)
     result = (m is not None)
-    if (result):
-        
     
+    if (result):
+        (_, width) = convert_to_int(m.group(1), 10)
+        (_, height) = convert_to_int(m.group(2), 10)
+        return (result, width, height)
+    logger.error("Failed to parse image resolution '{0}' ".format(resolution_arg))
+    return (result, None, None)
     
 def convert_image(arguments):
     while (True):
         filename_in = arguments["--filein"]
         filename_out = arguments["--fileout"]
         offset_str = arguments["--offset"]
-        (result, filecap) = openFile(filename_in, 'rb')
+        (result, filecap) = open_file(filename_in, 'rb')
         if (not result):
             logger.error("Failed to open file '{0}' for reading".format(filename_in))
             break
 
-        (result, fileout) = openFile(filename_out, 'wb')
+        (result, fileout) = open_file(filename_out, 'wb')
         if (not result):
             logger.error("Failed to open file '{0}' for writing".format(filename_out))
             break
 
 
-        (result, resolution) = parse_arguments_resolution(arguments["--resolution"])
+        (result, width, height) = parse_arguments_resolution(arguments["--resolution"])
+        if (not result:
+            break
+            
         filename_image = filename_out+".png"
     
         # Read the PCAP file , save the payload in a separate file
         offset = int(offset_str, 16)
         packets = savefile.load_savefile(filecap, verbose=True).packets
-        logger.info("Processing '{0}' packets, data offset {1}".format(len(packets), hex(offset)))
+        logger.info("Processing '{0}' packets, data offset {1}, resolution {2}x{3}".format(len(packets), hex(offset), width, height))
         for packet in packets:
             packet_raw = packet.raw()
             fileout.write(packet_raw[offset:])
         fileout.close()
         
         # Generate am image file 
-        img = Image.new('RGB', (320, 240), "black")
+        img = Image.new('RGB', (width, height), "black")
         data = open(filename_out, 'rb').read()
         pixels = []
         count = len(data)
