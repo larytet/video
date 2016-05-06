@@ -6,7 +6,7 @@
 Usage:
     convert_pcap.py convert --filein=FILENAME --offset=OFFSET --fileout=FILENAME --resolution=WIDTH,HEIGHT
     convert_pcap.py udprx --fileout=FILENAME --port=UDP_PORT --resolution=WIDTH,HEIGHT
-    convert_pcap.py udptx --filein=FILENAME --port=UDP_PORT --resolution=WIDTH,HEIGHT
+    convert_pcap.py udptx --filein=FILENAME --port=UDP_PORT
     
     
 Options:
@@ -156,17 +156,38 @@ def convert_image(arguments):
         break;
     
 def run_udp_rx(arguments):    
-    filename_out = arguments["--fileout"]
-    (result, fileout) = open_file(filename_out, 'wb')
-    if (not result):
-        logger.error("Failed to open file '{0}' for writing".format(filename_out))
-        break
-    
-    (result, width, height) = parse_arguments_resolution(arguments["--resolution"])
-    if (not result):
-        break
+    while (True):
+        filename_out = arguments["--fileout"]
+        (result, fileout) = open_file(filename_out, 'wb')
+        if (not result):
+            logger.error("Failed to open file '{0}' for writing".format(filename_out))
+            break
         
-    filename_image = filename_out+".png"
+        (result, width, height) = parse_arguments_resolution(arguments["--resolution"])
+        if (not result):
+            break
+        udp_port_str = arguments["--port"]
+        udp_port = convert_to_int(s, base)
+            
+        filename_image = filename_out+".png"
+        
+        break
+
+def run_udp_tx(arguments):
+    while (True):    
+        filename_out = arguments["--fileout"]
+        (result, fileout) = open_file(filename_out, 'wb')
+        if (not result):
+            logger.error("Failed to open file '{0}' for writing".format(filename_out))
+            break
+        
+        (result, width, height) = parse_arguments_resolution(arguments["--resolution"])
+        if (not result):
+            break
+            
+        filename_image = filename_out+".png"
+        
+        break
         
 if __name__ == '__main__':
     arguments = docopt(__doc__, version='PCAP converter')
