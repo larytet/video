@@ -134,7 +134,7 @@ def convert_image(arguments):
             fileout.write(packet_raw[offset:])
         fileout.close()
 
-        # Generate am image file 
+        # Generate am image file
         img = Image.new('RGB', (width, height), "black")
         data = open(filename_out, 'rb').read()
         pixels = []
@@ -142,13 +142,15 @@ def convert_image(arguments):
         expected_count = width * height
         index = 0
         # I assume R5 G6 B5
-        while (index < (count-2)):
+        while index < (count-2):
             pixel = get_pixel_rgb565_1(data, index)
             pixels.append(pixel)
             index = index + 2
-            if (len(pixels) >= expected_count):
-                if (index < (count-2)):
-                    logger.warning("Too much data for the image {0}x{1}. Expected {2} pixels, got {3} pixels".format(width, height, expected_count, count/2))
+            if len(pixels) >= expected_count:
+                if index < (count-2):
+                    logger.warning("Too much data for the image {0}x{1}. \
+                        Expected {2} pixels, got {3} pixels".format(
+                        width, height, expected_count, count/2))
                 break;
             
         if (len(pixels) < expected_count):
