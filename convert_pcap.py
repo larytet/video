@@ -261,17 +261,22 @@ def run_udp_rx(arguments):
 
 def run_udptx(arguments):
     while True:
-        filename_out = arguments["--fileout"]
-        (result, fileout) = open_file(filename_out, 'wb')
+        filename_in = arguments["--filein"]
+        (result, filein) = open_file(filename_in, 'rb')
         if not result:
-            logger.error("Failed to open file '{0}' for writing".format(filename_out))
+            logger.error("Failed to open file '{0}' for writing".format(filename_in))
             break
+    if  not result:
+        return
 
-        (result, width, height) = parse_arguments_resolution(arguments["--resolution"])
-        if not result:
-            break
+    data = file_in.read()
+    file_in.close()
+    frame_index = 0
+    fragment_index = 0
 
-        filename_image = filename_out+".png"
+    while True:
+        udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        udp_socket.sendto(MESSAGE, (UDP_IP, UDP_PORT))        
 
         break
 
