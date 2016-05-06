@@ -27,6 +27,7 @@ import re
 import socket
 import struct
 import time
+import thread
 
 try:
     from PIL import Image
@@ -178,7 +179,18 @@ def convert_image(arguments):
         logger.info("Generated file {0}".format(filename_image))
 
         break
-
+    
+def save_frame_to_file(filename_base, frame):
+    filename_image = "{0}.{1}.rgb565".format(filename_base, frame_index)
+    (result, fileout) = open_file(filename_image, "wb")
+    if (result):
+        fileout.write(frame)
+        fileout.close()
+        logger.info("Generated file {0}".format(filename_image))
+    else:
+        logger.warning("Failed to open file {0} for writing, drop frame {1}".format(
+            filename_image, frame_index))
+    
 def run_udp_rx_thread(filename_base, udp_socket, width, height):
     expected_frame_size = width * height * 2
 
@@ -230,15 +242,7 @@ def run_udp_rx_thread(filename_base, udp_socket, width, height):
 
         # The 'frame' contains a whole image - save the data to the rgb565 file
         if process_frame:
-            filename_image = "{0}.{1}.rgb565".format(filename_base, frame_index)
-            (result, fileout) = open_file(filename_image, "wb")
-            if (result):
-                fileout.write(frame)
-                fileout.close()
-                logger.info("Generated file {0}".format(filename_image))
-            else:
-                logger.warning("Failed to open file {0} for writing, drop frame {1}".format(
-                    filename_image, frame_index))
+            thread.start_new_thread(save_frame_to_file, (filename_base, frame))
             frame = ""
 
         # update the dictionary
