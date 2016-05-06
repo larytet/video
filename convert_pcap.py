@@ -266,6 +266,13 @@ def run_udptx(arguments):
         if not result:
             logger.error("Failed to open file '{0}' for writing".format(filename_in))
             break
+        
+        udp_port_str = arguments["--port"]
+        (result, udp_port) = convert_to_int(udp_port_str, 10)
+        if not result:
+            logger.error("Failed to parse UDP port number '{0}'".format(udp_port_str))
+            break
+        
     if  not result:
         return
 
@@ -273,12 +280,26 @@ def run_udptx(arguments):
     file_in.close()
     frame_index = 0
     fragment_index = 0
-
+    fragment_size = 1200
+    bytes_sent = 0
     while True:
         udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        udp_socket.sendto(MESSAGE, (UDP_IP, UDP_PORT))        
-
-        break
+        packet = []
+        packet.append(struct.pack("<I", frame_index))
+        packet.append(struct.pack("<I", fragment_index))
+        bytes_to_send = fragment_size
+        if (bytes_to_send+bytes_sent) > len(data):
+            bytes_to_send = len(data) - bytes_sent
+        packet.append(data[bytes_sent:bytes_sent+bytes_to_send])
+        udp_socket.sendto(packet, ("127.0.0.1", udp_port))
+        
+        fragment_index = fragment_index + 1
+        bytes_sent = bytes_sent + bytes_to_send
+        if bytes_sent > len(data):
+            logger.error("Sent frame '{0}'".format(frame_index))
+            bytes_sent = 0
+            fragment_index = 0
+            frame_index = frame_index + 1
 
 if __name__ == '__main__':
     arguments = docopt(__doc__, version='PCAP converter')
