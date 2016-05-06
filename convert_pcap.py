@@ -6,7 +6,7 @@
 Usage:
     convert_pcap.py convert --filein=FILENAME --offset=OFFSET --fileout=FILENAME --resolution=WIDTH,HEIGHT
     convert_pcap.py udprx --fileout=FILENAME --port=UDP_PORT --resolution=WIDTH,HEIGHT
-    convert_pcap.py udptx --filein=FILENAME --port=UDP_PORT
+    convert_pcap.py udptx --filein=FILENAME --port=UDP_PORT --ip=IP_ADDRESS
 
 
 Options:
@@ -15,6 +15,7 @@ Options:
     --fileout=FILENAME file to generate
     --resolution=WIDTH,HEIGHT resolution of the image to process
     --port=UDP_PORT destination port for transmit, source port for recieve
+    --ip=IP_ADDRESS destination IP address
 
 Example:
     ./convert_pcap.py convert --filein=udp.pcap --offset=0x30 --fileout=udp.pcap.bin
@@ -262,7 +263,7 @@ def run_udp_rx(arguments):
 def run_udptx(arguments):
     while True:
         filename_in = arguments["--filein"]
-        (result, filein) = open_file(filename_in, 'rb')
+        (result, file_in) = open_file(filename_in, 'rb')
         if not result:
             logger.error("Failed to open file '{0}' for writing".format(filename_in))
             break
@@ -272,6 +273,10 @@ def run_udptx(arguments):
         if not result:
             logger.error("Failed to parse UDP port number '{0}'".format(udp_port_str))
             break
+        
+        ip_address = arguments["--ip"]
+        
+        break
         
     if  not result:
         return
@@ -285,15 +290,15 @@ def run_udptx(arguments):
     fragments_sent = 0
     while True:
         udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        packet = []
-        packet.append(struct.pack("<I", frame_index))
-        packet.append(struct.pack("<I", fragment_index))
+        packet = ""
+        packet = packet + struct.pack("<I", frame_index)
+        packet = packet + struct.pack("<I", fragment_index)
         bytes_to_send = fragment_size
         if (bytes_to_send+bytes_sent) > len(data):
             bytes_to_send = len(data) - bytes_sent
-        packet.append(data[bytes_sent:bytes_sent+bytes_to_send])
-        udp_socket.sendto(packet, ("127.0.0.1", udp_port))
-        logger.info("Sent fragment {0}, frame {1}".format(frame_index))
+        packet = packet + data[bytes_sent:bytes_sent+bytes_to_send]
+        logger.info("Sending fragment {0}, frame {1} ...".format(frame_index, fragment_index))
+        udp_socket.sendto(packet, (ip_address, udp_port))
         
         fragment_index = fragment_index + 1
         bytes_sent = bytes_sent + bytes_to_send
