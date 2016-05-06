@@ -158,23 +158,23 @@ def convert_image(arguments):
         img.putdata(pixels)
         img.save(filename_image)
         logger.warning("Generated file {0}".format(filename_image))
-                    
-        break;
-    
+
+        break
+
 FRAME_INDEX_OFFSET = 0 # bytes
 FRAME_INDEX_SIZE = 2 # bytes
 
 FRAGMENT_INDEX_OFFSET = FRAME_INDEX_OFFSET+FRAME_INDEX_SIZE
 FRAGMENT_INDEX_SIZE = 4 # bytes
-    
+
 HEADER_SIZE = FRAGMENT_INDEX_SIZE + FRAME_INDEX_SIZE
-    
+
 def run_udp_rx_thread(filename_base, udp_socket, width, height):
     expected_frame_size = width * height * 2
-    
+
     # Dictionary of the received UDP packets. The key is source IP address
-    received_udp_packets = {}     
-    while (True):
+    received_udp_packets = {}
+    while True:
         try:
             data, addr = udp_socket.recvfrom(1450)
         except Exception as e:
@@ -182,12 +182,12 @@ def run_udp_rx_thread(filename_base, udp_socket, width, height):
             logger.error(e)
             break
         frame = []
-        if (not addr in received_udp_packets):  # very first time I see the UDP source IP
+        if not addr in received_udp_packets:  # very first time I see the UDP source IP
             logger.info("Got first packet from {0}".format(addr))
             received_udp_packets[addr] = (frame, 0, 0, 0)
         (frame, received_frames, last_frame_index, last_fragment_index) = received_udp_packets[addr]
         logger.info("Got packet {0} from {1}".format(received_frames, addr))
-        
+
         # Fetch the header (little endian)
         frame_index = struct.unpack('<i', data[FRAME_INDEX_OFFSET:FRAME_INDEX_OFFSET+FRAME_INDEX_SIZE])
         fragment_index = struct.unpack('<i', data[FRAGMENT_INDEX_OFFSET:FRAGMENT_INDEX_OFFSET+FRAGMENT_INDEX_SIZE])
