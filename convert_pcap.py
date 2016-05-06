@@ -195,8 +195,8 @@ def run_udp_rx_thread(filename_base, udp_socket, width, height):
         logger.info("Got packet {0} from {1}".format(received_frames, addr))
 
         # Fetch the header (little endian)
-        frame_index = struct.unpack('<i', data[FRAME_INDEX_OFFSET:FRAME_INDEX_OFFSET+FRAME_INDEX_SIZE])
-        fragment_index = struct.unpack('<i', data[FRAGMENT_INDEX_OFFSET:FRAGMENT_INDEX_OFFSET+FRAGMENT_INDEX_SIZE])
+        frame_index = struct.unpack('<I', data[FRAME_INDEX_OFFSET:FRAME_INDEX_OFFSET+FRAME_INDEX_SIZE])
+        fragment_index = struct.unpack('<I', data[FRAGMENT_INDEX_OFFSET:FRAGMENT_INDEX_OFFSET+FRAGMENT_INDEX_SIZE])
 
         frame.append()
         process_frame = False
@@ -305,7 +305,7 @@ def run_udptx(arguments):
     while True:
         udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         packet = ""
-        packet = packet + struct.pack("<I", frame_index)
+        packet = packet + struct.pack("<H", frame_index)
         packet = packet + struct.pack("<I", fragment_index)
         bytes_to_send = fragment_size
         if (bytes_to_send+bytes_sent) > len(data):
