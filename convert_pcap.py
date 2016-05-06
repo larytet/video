@@ -4,13 +4,17 @@
 # Data can come from OV7691 
 '''
 Usage:
-    convert_pcap.py convert --filein=FILENAME --offset=OFFSET --fileout=FILENAME
+    convert_pcap.py convert --filein=FILENAME --offset=OFFSET --fileout=FILENAME --resolution=WIDTH,HEIGHT
+    convert_pcap.py udprx --fileout=FILENAME --port=UDP_PORT
+    convert_pcap.py udptx --filein=FILENAME --port=UDP_PORT
     
     
 Options:
     --filein=FILENAME file to convert
     --offset=OFFSET offset of the data in the Ethernet packet payload (HEX)
     --fileout=FILENAME file to generate
+    --resolution=WIDTH,HEIGHT resolution of the image to process
+    --port=UDP_PORT destination port for transmit, source port for recieve 
     
 Example:
     ./convert_pcap.py convert --filein=udp.pcap --offset=0x30 --fileout=udp.pcap.bin
