@@ -22,8 +22,11 @@ Links
 
 Tips
 =============================
-Convert raw RGB565 file to PNG
+*  Convert raw RGB565 file to PNG
 ffmpeg -y -vcodec rawvideo -f rawvideo  -pix_fmt rgb565 -s 320x240 -i ./test_320x240_rgb565_noudp.pcap.rgb565 -f image2 -vcodec png ./test_320x240_rgb565_noudp.pcap.rgb565.png
-Get the data from stdin
+
+*  Get the data from stdin
 cat ./test_320x240_rgb565_noudp.pcap.rgb565 | ffmpeg -y -vcodec rawvideo -f rawvideo  -pix_fmt rgb565 -s 320x240 -i pipe:0  -f image2 -vcodec png ./test_320x240_rgb565_noudp.pcap.rgb565.png
 
+*  Create a video file from multiple PNG files
+ffmpeg -y -start_number 0  -i  ./test.127.0.0.1.60410.%d.png ./test.mpg
