@@ -6,7 +6,7 @@
 Usage:
     convert_pcap.py convert --filein=FILENAME --offset=OFFSET --fileout=FILENAME --resolution=WIDTH,HEIGHT
     convert_pcap.py udprx --fileout=FILENAME --port=UDP_PORT --resolution=WIDTH,HEIGHT
-    convert_pcap.py udptx --filein=FILENAME --port=UDP_PORT --ip=IP_ADDRESS --rate=FRAME_RATE
+    convert_pcap.py udptx --filein=FILENAME --port=UDP_PORT --ip=IP_ADDRESS --rate=FRAME_RATE [--ffmpeg=FFMPEG_PATH]
     convert_pcap.py udprxsim --port=UDP_PORT --resolution=WIDTH,HEIGHT
 
 
@@ -15,9 +15,10 @@ Options:
     --offset=OFFSET offset of the data in the Ethernet packet payload (HEX)
     --fileout=FILENAME file to generate
     --resolution=WIDTH,HEIGHT resolution of the image to process
-    --port=UDP_PORT destination port for transmit, source port for recieve
+    --port=UDP_PORT destination port for transmit, source port for receive
     --ip=IP_ADDRESS destination IP address
     --rate=FRAME_RATE maximum frame rate for transmit in frames per second
+    --ffmpeg=FFMPEG_PATH full file path to the ffmpeg utility, if specified receive will generate PNG files instead of RGB565 files  
 
 Example:
     ./convert_pcap.py convert --filein=udp.pcap --offset=0x30 --fileout=udp.pcap.bin
