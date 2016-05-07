@@ -376,7 +376,7 @@ def run_udptx(arguments):
             
             # Calculate difference between the expected transmission time at the given frame rate and actual time 
             delta_time = timestamp - rate_limiter_timestamp
-            time_to_sleep = (rate_limiter_frames_sent/max_frame_rate) - delta_time 
+            time_to_sleep = (1.0*rate_limiter_frames_sent/max_frame_rate) - delta_time 
             if (time_to_sleep > 0):
                 time.sleep(time_to_sleep)
             if (delta_time > 10):  # Avoid overflow in the counters 
