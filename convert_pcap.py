@@ -7,6 +7,7 @@ Usage:
     convert_pcap.py convert --filein=FILENAME --offset=OFFSET --fileout=FILENAME --resolution=WIDTH,HEIGHT
     convert_pcap.py udprx --fileout=FILENAME --port=UDP_PORT --resolution=WIDTH,HEIGHT
     convert_pcap.py udptx --filein=FILENAME --port=UDP_PORT --ip=IP_ADDRESS --rate=FRAME_RATE
+    convert_pcap.py udprxsim --port=UDP_PORT --resolution=WIDTH,HEIGHT
 
 
 Options:
@@ -191,6 +192,27 @@ def save_frame_to_file(filename_base, addr, frame, frame_index):
         logger.warning("Failed to open file {0} for writing, drop frame {1}".format(
             filename_image, frame_index))
     
+def run_udp_rx_simulation(udp_socket, width, height):
+    expected_frame_size = width * height * 2
+
+    # Dictionary of the received UDP packets. The key is source IP address
+    received_udp_packets = {}
+    rx_buffer_size = 1500
+    received_bytes = 0
+    while True:
+        try:
+            data, addr = udp_socket.recvfrom(rx_buffer_size)
+        except Exception as e:
+            logger.error("Failed to read UDP socket")
+            logger.error(e)
+            break
+        received_bytes = received_bytes + len(data)
+        if (len(data) < 1300):
+            logger.error("Frame completed {0} bytes".format(received_bytes))
+            received_bytes = 0
+            
+        
+
 def run_udp_rx_thread(filename_base, udp_socket, width, height):
     expected_frame_size = width * height * 2
 
@@ -255,13 +277,14 @@ def run_udp_rx_thread(filename_base, udp_socket, width, height):
         # update the dictionary
         received_udp_packets[addr] = (frame, received_frames, expected_fragment_index, expected_frame_index)
 
-def run_udp_rx(arguments):
+def run_udp_rx(arguments, simulation=False):
     while True:
-        filename_out = arguments["--fileout"]
-        (result, fileout) = open_file(filename_out, 'wb')
-        if not result:
-            logger.error("Failed to open file '{0}' for writing".format(filename_out))
-            break
+        if (not simulation):
+            filename_out = arguments["--fileout"]
+            (result, fileout) = open_file(filename_out, 'wb')
+            if not result:
+                logger.error("Failed to open file '{0}' for writing".format(filename_out))
+                break
 
         (result, width, height) = parse_arguments_resolution(arguments["--resolution"])
         if not result:
@@ -281,7 +304,10 @@ def run_udp_rx(arguments):
             logger.error(e)
             break
 
-        run_udp_rx_thread(filename_out, udp_socket, width, height)
+        if (simulation):
+            run_udp_rx_thread(filename_out, udp_socket, width, height)
+        else:
+            run_udp_rx_simulation(udp_socket, width, height)
 
         break
 
@@ -388,5 +414,7 @@ if __name__ == '__main__':
         convert_image(arguments)
     elif is_udprx:
         run_udp_rx(arguments)
+    elif is_udprxsim:
+        run_udp_rx(arguments, True)
     elif is_udptx:
         run_udptx(arguments)
