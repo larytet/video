@@ -304,7 +304,7 @@ def run_udp_rx(arguments, simulation=False):
             logger.error(e)
             break
 
-        if (simulation):
+        if (not simulation):
             run_udp_rx_thread(filename_out, udp_socket, width, height)
         else:
             run_udp_rx_simulation(udp_socket, width, height)
