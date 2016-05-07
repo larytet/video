@@ -408,6 +408,7 @@ if __name__ == '__main__':
 
     is_convert = arguments["convert"]
     is_udprx = arguments["udprx"]
+    is_udprxsim = arguments["udprxsim"]
     is_udptx = arguments["udptx"]
 
     if is_convert:
