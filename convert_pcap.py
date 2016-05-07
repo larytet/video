@@ -122,13 +122,14 @@ def parse_arguments_ffmpeg(arguments):
             break
         
         ffmpeg_path = arguments["--ffmpeg"]
-        ffmpeg_output = []
         try:
             process = subprocess.Popen([ffmpeg_path, "-h"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             (ffmpeg_output, err) = process.communicate()
             exit_code = process.wait()
         except Exception as e:
             logger.error(e)
+            ffmpeg_output = []
+            
         result = "version" in ffmpeg_output
         if not result:
             logger.warning("Failed to run '{0}'".format(ffmpeg_path))
