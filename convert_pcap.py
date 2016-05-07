@@ -180,13 +180,13 @@ def convert_image(arguments):
 
         break
     
-def save_frame_to_file(filename_base, frame, frame_index):
-    filename_image = "{0}.{1}.rgb565".format(filename_base, frame_index)
+def save_frame_to_file(filename_base, addr, frame, frame_index):
+    filename_image = "{0}.{1}.{2}.rgb565".format(filename_base, addr, frame_index)
     (result, fileout) = open_file(filename_image, "wb")
     if (result):
         fileout.write(frame)
         fileout.close()
-        logger.info("Generated file {0}".format(filename_image))
+        #logger.info("Generated file {0}".format(filename_image))
     else:
         logger.warning("Failed to open file {0} for writing, drop frame {1}".format(
             filename_image, frame_index))
@@ -206,7 +206,7 @@ def run_udp_rx_thread(filename_base, udp_socket, width, height):
             break
         
         if not addr in received_udp_packets:  # very first time I see the UDP source IP
-            logger.info("Got first packet from {0}".format(addr))
+            logger.info("Client {0} connected".format(addr))
             received_udp_packets[addr] = ("", 0, 0, 0)
         (frame, received_frames, expected_fragment_index, expected_frame_index) = received_udp_packets[addr]
 
@@ -248,7 +248,7 @@ def run_udp_rx_thread(filename_base, udp_socket, width, height):
 
         # The 'frame' contains a whole image - save the data to the rgb565 file
         if process_frame:
-            thread.start_new_thread(save_frame_to_file, (filename_base, frame, frame_index))
+            thread.start_new_thread(save_frame_to_file, (filename_base, addr, frame, frame_index))
             frame = ""
 
         # update the dictionary
@@ -352,7 +352,7 @@ def run_udptx(arguments):
             time_to_sleep = (rate_limiter_frames_sent/max_frame_rate) - delta_time 
             if (time_to_sleep > 0):
                 time.sleep(time_to_sleep)
-            if (delta_time > 10*1024*1024):  # Avoid overflow in the counters 
+            if (delta_time > 10*1024*10246):  # Avoid overflow in the counters 
                 rate_limiter_timestamp = time.time()
                 rate_limiter_frames_sent = 0
                 
