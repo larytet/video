@@ -29,6 +29,8 @@ import socket
 import struct
 import time
 import thread
+import threading
+from datetime import datetime
 
 try:
     from PIL import Image
@@ -212,12 +214,33 @@ def run_udp_rx_simulation(udp_socket, width, height):
             received_bytes = 0
             
         
-
+def run_udp_disconnected_clients(received_udp_packets, lock):
+    '''
+    Wake up periodically, check the latest time stamp in the dictionary
+    if there is no data for some time declare the client disconnected
+    '''
+    while True:
+        time.sleep(1.0)
+        timestamp = time.time()
+        disconnected_clients = []
+        with lock:
+            for addr in received_udp_packets:
+                (_, received_frames, _, _, last_timestamp) = received_udp_packets[addr]
+                if (timestamp - last_timestamp) > 1.0:
+                    disconnected_clients.append((addr, received_frames))
+        for (addr, received_frames) in disconnected_clients:
+            with lock:
+                del received_udp_packets[addr]
+            logger.info("{0} Client {1} disconnected after {2} frames".format(datetime.now(), addr, received_frames))
+            
+    
 def run_udp_rx_thread(filename_base, udp_socket, width, height):
     expected_frame_size = width * height * 2
 
     # Dictionary of the received UDP packets. The key is source IP address
     received_udp_packets = {}
+    lock = lock = threading.Lock()
+    thread.start_new_thread(run_udp_disconnected_clients, (received_udp_packets, lock))
     rx_buffer_size = 1500
     while True:
         try:
@@ -227,10 +250,13 @@ def run_udp_rx_thread(filename_base, udp_socket, width, height):
             logger.error(e)
             break
         
+        timestamp = time.time()
         if not addr in received_udp_packets:  # very first time I see the UDP source IP
-            logger.info("Client {0} connected".format(addr))
-            received_udp_packets[addr] = ("", 0, 0, 0)
-        (frame, received_frames, expected_fragment_index, expected_frame_index) = received_udp_packets[addr]
+            logger.info("{0} Client {1} connected".format(datetime.now(), addr))
+            with lock:
+                received_udp_packets[addr] = ("", 0, 0, 0, time.time())
+        with lock:
+            (frame, received_frames, expected_fragment_index, expected_frame_index, _) = received_udp_packets[addr]
 
         # Fetch the header (little endian)
         frame_index = struct.unpack('<H', data[FRAME_INDEX_OFFSET:FRAME_INDEX_OFFSET+FRAME_INDEX_SIZE])[0]
@@ -275,7 +301,10 @@ def run_udp_rx_thread(filename_base, udp_socket, width, height):
             frame = ""
 
         # update the dictionary
-        received_udp_packets[addr] = (frame, received_frames, expected_fragment_index, expected_frame_index)
+        with lock:
+            if (expected_frame_index >= 64*1024): # handle wrap around of the 2 bytes of the frame index
+                expected_frame_index = 0
+            received_udp_packets[addr] = (frame, received_frames, expected_fragment_index, expected_frame_index, timestamp)
 
 def run_udp_rx(arguments, simulation=False):
     while True:
