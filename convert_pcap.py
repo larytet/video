@@ -5,8 +5,8 @@
 '''
 Usage:
     convert_pcap.py convert --filein=FILENAME --offset=OFFSET --fileout=FILENAME --resolution=WIDTH,HEIGHT
-    convert_pcap.py udprx --fileout=FILENAME --port=UDP_PORT --resolution=WIDTH,HEIGHT
-    convert_pcap.py udptx --filein=FILENAME --port=UDP_PORT --ip=IP_ADDRESS --rate=FRAME_RATE [--ffmpeg=FFMPEG_PATH]
+    convert_pcap.py udprx --fileout=FILENAME --port=UDP_PORT --resolution=WIDTH,HEIGHT  [--ffmpeg=FFMPEG_PATH]
+    convert_pcap.py udptx --filein=FILENAME --port=UDP_PORT --ip=IP_ADDRESS --rate=FRAME_RATE
     convert_pcap.py udprxsim --port=UDP_PORT --resolution=WIDTH,HEIGHT
 
 
@@ -119,20 +119,24 @@ def parse_arguments_ffmpeg(arguments):
     ffmpeg_path = None
     while True:
         if not arguments["--ffmpeg"]:
-            logger.warning("No ffmpeg path is specified. Storing raw image files")
             break
         
         ffmpeg_path = arguments["--ffmpeg"]
-        break
-    
-        process = Popen([ffmpeg_path, "-h"], stdout=PIPE)
-        (output, err) = process.communicate()
-        exit_code = process.wait()
-        result = "version" in output
+        ffmpeg_output = []
+        try:
+            process = Popen([ffmpeg_path, "-h"], stdout=PIPE)
+            (ffmpeg_output, err) = process.communicate()
+            exit_code = process.wait()
+        except Exception as e:
+            logger.error(e)
+        result = "version" in ffmpeg_output
         if not result:
             logger.warning("Failed to run '{0}'".format(ffmpeg_path))
             break
         break
+
+    if not result:
+        logger.warning("No ffmpeg path is specified. Storing raw image files")
     
     return (result, ffmpeg_path)
 
