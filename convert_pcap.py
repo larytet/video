@@ -32,7 +32,7 @@ import time
 import thread
 import threading
 from datetime import datetime
-from subprocess import Popen, PIPE
+import subprocess
 
 try:
     from PIL import Image
@@ -124,7 +124,7 @@ def parse_arguments_ffmpeg(arguments):
         ffmpeg_path = arguments["--ffmpeg"]
         ffmpeg_output = []
         try:
-            process = Popen([ffmpeg_path, "-h"], stdout=PIPE)
+            process = subprocess.Popen([ffmpeg_path, "-h"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             (ffmpeg_output, err) = process.communicate()
             exit_code = process.wait()
         except Exception as e:
