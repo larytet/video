@@ -32,6 +32,7 @@ import time
 import thread
 import threading
 from datetime import datetime
+from subprocess import Popen, PIPE
 
 try:
     from PIL import Image
@@ -113,6 +114,28 @@ def parse_arguments_resolution(resolution_arg):
     logger.error("Failed to parse image resolution '{0}' ".format(resolution_arg))
     return (result, None, None)
 
+def parse_arguments_ffmpeg(arguments):
+    result = False
+    ffmpeg_path = None
+    while True:
+        if not arguments["--ffmpeg"]:
+            logger.warning("No ffmpeg path is specified. Storing raw image files")
+            break
+        
+        ffmpeg_path = arguments["--ffmpeg"]
+        break
+    
+        process = Popen([ffmpeg_path, "-h"], stdout=PIPE)
+        (output, err) = process.communicate()
+        exit_code = process.wait()
+        result = "version" in output
+        if not result:
+            logger.warning("Failed to run '{0}'".format(ffmpeg_path))
+            break
+        break
+    
+    return (result, ffmpeg_path)
+
 FRAME_INDEX_OFFSET = 0 # bytes
 FRAME_INDEX_SIZE = 2 # bytes
 
@@ -184,16 +207,19 @@ def convert_image(arguments):
 
         break
     
-def save_frame_to_file(filename_base, addr, frame, frame_index):
-    filename_image = "{0}.{1}.{2}.rgb565".format(filename_base, addr, frame_index)
-    (result, fileout) = open_file(filename_image, "wb")
-    if (result):
-        fileout.write(frame)
-        fileout.close()
-        #logger.info("Generated file {0}".format(filename_image))
+def save_frame_to_file(filename_base, addr, frame, frame_index, ffmpeg_path):
+    if ffmpeg_path == None:
+        filename_image = "{0}.{1}.{2}.rgb565".format(filename_base, addr, frame_index)
+        (result, fileout) = open_file(filename_image, "wb")
+        if (result):
+            fileout.write(frame)
+            fileout.close()
+            #logger.info("Generated file {0}".format(filename_image))
+        else:
+            logger.warning("Failed to open file {0} for writing, drop frame {1}".format(
+                filename_image, frame_index))
     else:
-        logger.warning("Failed to open file {0} for writing, drop frame {1}".format(
-            filename_image, frame_index))
+        filename_image = "{0}.{1}.{2}.png".format(filename_base, addr, frame_index)
     
 def run_udp_rx_simulation(udp_socket, width, height):
     expected_frame_size = width * height * 2
@@ -235,7 +261,7 @@ def run_udp_disconnected_clients(received_udp_packets, lock):
             logger.info("{0} Client {1} disconnected after {2} frames".format(datetime.now(), addr, received_frames))
             
     
-def run_udp_rx_thread(filename_base, udp_socket, width, height):
+def run_udp_rx_thread(filename_base, udp_socket, width, height, ffmpeg_path):
     expected_frame_size = width * height * 2
 
     # Dictionary of the received UDP packets. The key is source IP address
@@ -297,7 +323,7 @@ def run_udp_rx_thread(filename_base, udp_socket, width, height):
 
         # The 'frame' contains a whole image - save the data to the rgb565 file
         if process_frame:
-            thread.start_new_thread(save_frame_to_file, (filename_base, addr, frame, frame_index))
+            thread.start_new_thread(save_frame_to_file, (filename_base, addr, frame, frame_index, ffmpeg_path))
             received_frames = received_frames + 1
             frame = ""
 
@@ -325,6 +351,8 @@ def run_udp_rx(arguments, simulation=False):
         if not result:
             logger.error("Failed to parse UDP port number '{0}'".format(udp_port_str))
             break
+        
+        (result, ffmpeg_path) = parse_arguments_ffmpeg(arguments)
 
         try:
             udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -335,7 +363,7 @@ def run_udp_rx(arguments, simulation=False):
             break
 
         if (not simulation):
-            run_udp_rx_thread(filename_out, udp_socket, width, height)
+            run_udp_rx_thread(filename_out, udp_socket, width, height, ffmpeg_path)
         else:
             run_udp_rx_simulation(udp_socket, width, height)
 
