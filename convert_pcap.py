@@ -423,7 +423,7 @@ def run_udptx(arguments):
                 #fps_period = 1.0
                 
             frame_index = frame_index + 1
-            if (frame_index > 64*1024): frame_index = 0;
+            if (frame_index >= 64*1024): frame_index = 0;
             bytes_sent = 0
             fragment_index = 0
             fragments_sent = 0
