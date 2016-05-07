@@ -230,8 +230,7 @@ def save_frame_to_file(filename_base, addr, frame, frame_index, ffmpeg_path):
         ffmpeg_command = "ffmpeg -y -vcodec rawvideo -f rawvideo -pix_fmt rgb565 -s 320x240\
             -i pipe:0 -f image2 -vcodec png"
         ffmpeg_command_popen = ffmpeg_command.split()
-        ffmpeg_command_popen.append("\"{0}\"".format(filename_image)) # filename can contain white spaces
-        logger.info(ffmpeg_command_popen)
+        ffmpeg_command_popen.append("{0}".format(filename_image)) # filename can contain white spaces
         ffmpeg_output = []
         exit_code = None
         try:
