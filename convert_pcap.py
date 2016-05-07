@@ -229,7 +229,7 @@ def run_udp_rx_thread(filename_base, udp_socket, width, height):
             # This is a new frame
             if len(frame) < expected_frame_size:
                 logger.warning("Got {0} bytes instead of expected {1} bytes for the resolution {2}x{3} in frame {4}".format(
-                    len(frame), expected_frame_size, width, height, received_frames))
+                    len(frame), expected_frame_size, width, height, frame_index))
             process_frame = True
             expected_frame_index = frame_index
             expected_fragment_index = 1
@@ -239,7 +239,7 @@ def run_udp_rx_thread(filename_base, udp_socket, width, height):
             
         if len(frame) > expected_frame_size:
             logger.warning("Got {0} bytes instead of expected {1} bytes for the resolution {2}x{3} in frame {4}. Ignore the data".format(
-                len(frame), expected_frame_size, width, height, received_frames))
+                len(frame), expected_frame_size, width, height, frame_index))
             expected_frame_index = frame_index+1
         elif len(frame) >= expected_frame_size:
             process_frame = True
@@ -249,11 +249,11 @@ def run_udp_rx_thread(filename_base, udp_socket, width, height):
         # The 'frame' contains a whole image - save the data to the rgb565 file
         if process_frame:
             thread.start_new_thread(save_frame_to_file, (filename_base, addr, frame, frame_index))
+            received_frames = received_frames + 1
             frame = ""
 
         # update the dictionary
         received_udp_packets[addr] = (frame, received_frames, expected_fragment_index, expected_frame_index)
-        received_frames = received_frames + 1
 
 def run_udp_rx(arguments):
     while True:
