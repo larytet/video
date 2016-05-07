@@ -213,8 +213,10 @@ def convert_image(arguments):
         break
     
 def save_frame_to_file(filename_base, addr, frame, frame_index, ffmpeg_path):
+    (ip_address, ip_port) = addr[0], addr[1] 
     if ffmpeg_path == None:
-        filename_image = "{0}.{1}.{2}.rgb565".format(filename_base, addr, frame_index)
+        
+        filename_image = "{0}.{1}.{2}.{3}.rgb565".format(filename_base, ip_address, ip_port, frame_index)
         (result, fileout) = open_file(filename_image, "wb")
         if (result):
             fileout.write(frame)
@@ -224,10 +226,12 @@ def save_frame_to_file(filename_base, addr, frame, frame_index, ffmpeg_path):
             logger.warning("Failed to open file {0} for writing, drop frame {1}".format(
                 filename_image, frame_index))
     else:
-        filename_image = "{0}.{1}.{2}.png".format(filename_base, addr, frame_index)
+        filename_image = "{0}.{1}.{2}.{3}.png".format(filename_base, ip_address, ip_port, frame_index)
         ffmpeg_command = "ffmpeg -y -vcodec rawvideo -f rawvideo -pix_fmt rgb565 -s 320x240\
-            -i pipe:0 -f image2 -vcodec png {0}".format(filename_image)
-        ffmpeg_command_popen = ffmpeg_command.split()        
+            -i pipe:0 -f image2 -vcodec png"
+        ffmpeg_command_popen = ffmpeg_command.split()
+        ffmpeg_command_popen.append("\"{0}\"".format(filename_image)) # filename can contain white spaces
+        logger.info(ffmpeg_command_popen)
         ffmpeg_output = []
         exit_code = None
         try:
