@@ -225,6 +225,21 @@ def save_frame_to_file(filename_base, addr, frame, frame_index, ffmpeg_path):
                 filename_image, frame_index))
     else:
         filename_image = "{0}.{1}.{2}.png".format(filename_base, addr, frame_index)
+        ffmpeg_command = "ffmpeg -y -vcodec rawvideo -f rawvideo -pix_fmt rgb565 -s 320x240\
+            -i pipe:0 -f image2 -vcodec png {0}".format(filename_image)
+        ffmpeg_command_popen = ffmpeg_command.split()        
+        ffmpeg_output = []
+        exit_code = None
+        try:
+            process = subprocess.Popen(ffmpeg_command_popen, stdin=subprocess.PIPE,stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            (ffmpeg_output, err) = process.communicate(input=frame)
+            exit_code = process.wait()
+        except Exception as e:
+            logger.error(e)
+        
+        if exit_code != 0:
+            logger.error("ffmpeg failed to generate file '{0}'. Output:{1}".format(filename_image, ffmpeg_output))
+            
     
 def run_udp_rx_simulation(udp_socket, width, height):
     expected_frame_size = width * height * 2
