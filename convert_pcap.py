@@ -231,17 +231,18 @@ def save_frame_to_file(filename_base, addr, frame, frame_index, ffmpeg_path):
             -i pipe:0 -f image2 -vcodec png"
         ffmpeg_command_popen = ffmpeg_command.split()
         ffmpeg_command_popen.append("{0}".format(filename_image)) # filename can contain white spaces
-        ffmpeg_output = []
+        ffmpeg_stdout = []
+        ffmpeg_stderr = []
         exit_code = None
         try:
             process = subprocess.Popen(ffmpeg_command_popen, stdin=subprocess.PIPE,stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            (ffmpeg_output, err) = process.communicate(input=frame)
+            (ffmpeg_stdout, ffmpeg_stderr) = process.communicate(input=frame)
             exit_code = process.wait()
         except Exception as e:
             logger.error(e)
         
         if exit_code != 0:
-            logger.error("ffmpeg failed to generate file '{0}'. Output:{1}".format(filename_image, ffmpeg_output))
+            logger.error("ffmpeg failed to generate file '{0}'. stderr:{1}".format(filename_image, ffmpeg_stderr))
             
     
 def run_udp_rx_simulation(udp_socket, width, height):
