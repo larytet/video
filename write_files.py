@@ -17,7 +17,7 @@ opened_files = []
 for target_file_name in os.listdir(os.path.join(".", "Documents")):
     try:
         print target_file_name
-        flags = win32api.REPLACEFILE_IGNORE_MERGE_ERRORS | win32api.REPLACEFILE_IGNORE_ACL_ERRORS 
+        flags = win32file.REPLACEFILE_IGNORE_MERGE_ERRORS | win32file.REPLACEFILE_IGNORE_ACL_ERRORS 
         win32api.ReplaceFile(target_file_name, master_file, NULL, flags)
     except Exception as e:
         print e
