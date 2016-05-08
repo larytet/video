@@ -9,7 +9,7 @@ def write_file(target_file_name, target_file):
     print "."
 
 master_file = os.path.join(".", "test.txt") 
-f = open(master_file)
+f = open(master_file, "w")
 f.write("test")
 f.close()
 
