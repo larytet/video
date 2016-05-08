@@ -13,11 +13,11 @@ for target_file_name in os.listdir(os.path.join(".", "Documents")):
     count = count + 1
     if (count > 3):
         while (True):
-            print "waiting ", count
             count = count + 1
     try:
         if count == 2:
             target_file_name = "test.txt"
+        print target_file_name
         target_file = open(target_file_name, "w")
         opened_files.append(target_file)  # keep the handler 
         write_file(target_file_name, target_file)
