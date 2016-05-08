@@ -18,6 +18,7 @@ Links
 *  http://stackoverflow.com/questions/4092927/generating-movie-from-python-without-saving-individual-frames-to-file
 *  http://stackoverflow.com/questions/5414638/using-numpy-and-pil-to-convert-56516bit-color-to-88824bit-color
 *  http://stackoverflow.com/questions/12999674/ffmpeg-which-file-formats-support-stdin-usage
+*  http://stackoverflow.com/questions/753190/programmatically-generate-video-or-animated-gif-in-python Another example with OpenCV
 
 
 Tips
