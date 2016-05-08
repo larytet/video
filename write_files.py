@@ -22,7 +22,7 @@ for target_file_name in target_files:
     target_file = open(target_file_name, "w")
     opened_files.append(target_file)  # keep the handler 
     thread.start_new_thread(write_file, (target_file_name, target_file,) )
-    time.sleep(100)
+time.sleep(100)
     
 
     
