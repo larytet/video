@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import os
-import time
+import os, time
 
 def write_file(target_file_name, target_file):
     try:
