@@ -29,4 +29,4 @@ ffmpeg -y -vcodec rawvideo -f rawvideo  -pix_fmt rgb565 -s 320x240 -i ./test_320
 cat ./test_320x240_rgb565_noudp.pcap.rgb565 | ffmpeg -y -vcodec rawvideo -f rawvideo  -pix_fmt rgb565 -s 320x240 -i pipe:0  -f image2 -vcodec png ./test_320x240_rgb565_noudp.pcap.rgb565.png
 
 *  Create a video file from multiple PNG files
-ffmpeg -y -start_number 0  -i  ./test.127.0.0.1.60410.%d.png ./test.mpg
+ffmpeg -y -start_number 0 -r 25 -i  ./test.127.0.0.1.60410.%d.png ./test.mpg
