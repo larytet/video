@@ -3,11 +3,8 @@
 import os, time
 
 def write_file(target_file_name, target_file):
-    try:
-        target_file.write('test')
-        print "."
-    except:
-        pass
+    target_file.write('test')
+    print "."
 
 opened_files = []
 for target_file_name in os.listdir(os.path.join(".", "Documents")):
