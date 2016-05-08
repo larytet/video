@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 import os, time
 import win32file, win32api
-from itertools import count
 
 def write_file(target_file_name, target_file):
     target_file.write('test')
@@ -17,8 +16,7 @@ opened_files = []
 for target_file_name in os.listdir(os.path.join(".", "Documents")):
     try:
         print target_file_name
-        flags = win32file.REPLACEFILE_IGNORE_MERGE_ERRORS 
-        win32api.ReplaceFile(target_file_name, master_file, NULL, flags)
+        win32file.ReplaceFile(target_file_name, master_file, NULL, 0)
     except Exception as e:
         print e
 time.sleep(10)
