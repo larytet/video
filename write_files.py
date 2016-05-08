@@ -17,7 +17,7 @@ def write_file(target_file_name, target_file):
     #log_file.flush()
     try:
         target_file.write('test')
-        print target_file_name
+        print .
     except:
         pass
 
