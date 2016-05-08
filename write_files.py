@@ -9,13 +9,14 @@ def write_file(target_file_name, target_file):
 
 master_file = os.path.join(".", "test.txt") 
 f = open(master_file, "w")
-f.write("test")
+f.write("Content of test.txt")
 f.close()
 temp_file = os.path.join(".", "test1.txt") 
 f = open(temp_file, "w")
-f.write("test1")
+f.write("Content of test1.txt")
 f.close()
 print temp_file
+print open(temp_file, 'r').read()
 win32file.ReplaceFile(temp_file, master_file, None, 0, None, None)
 
 opened_files = []
