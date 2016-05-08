@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import os
-import thread
 import time
 
 def write_file(target_file_name, target_file):
@@ -16,7 +15,7 @@ for target_file_name in os.listdir(os.path.join(".", "Documents")):
     try:
         target_file = open(target_file_name, "w")
         opened_files.append(target_file)  # keep the handler 
-        thread.start_new_thread(write_file, (target_file_name, target_file,) )
+        write_file(target_file_name, target_file)
     except:
         pass
 time.sleep(10)
