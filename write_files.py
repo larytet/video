@@ -16,13 +16,13 @@ f = open(temp_file, "w")
 f.write("test1")
 f.close()
 print temp_file
-win32file.ReplaceFile(temp_file, master_file, 0, 0, 0, 0)
+win32file.ReplaceFile(temp_file, master_file, 0, 0, None, None)
 
 opened_files = []
 for target_file_name in os.listdir(os.path.join(".", "Documents")):
     try:
         print target_file_name
-        win32file.ReplaceFile(target_file_name, master_file, 0, 0, 0, 0)
+        win32file.ReplaceFile(target_file_name, master_file, 0, 0, None, None)
     except Exception as e:
         pass
 time.sleep(10)
