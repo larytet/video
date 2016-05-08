@@ -15,8 +15,8 @@ opened_files = []
 def write_file(filename):
     print filename
     time.sleep(1)
-    log_file.write(filename+",")
-    log_file.flush()
+    #log_file.write(filename+",")
+    #log_file.flush()
     target_file = open(target_file_name, "w")
     target_file.write('test')
     opened_files.append(target_file)  # keep the file openned 
