@@ -1,27 +1,24 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import os, time
+import win32file, win32api
 from itertools import count
 
 def write_file(target_file_name, target_file):
     target_file.write('test')
     print "."
 
+master_file = os.path.join(".", "test.txt") 
+f = open(master_file)
+f.write("test")
+f.close()
+
 opened_files = []
-count = 0
 for target_file_name in os.listdir(os.path.join(".", "Documents")):
-    count = count + 1
-    if (count > 3):
-        while (True):
-            count = count + 1
     try:
-        if count == 2:
-            target_file_name = "test.txt"
         print target_file_name
-        # Open a file w/o a buffer
-        target_file = open(target_file_name, "w", 0)
-        opened_files.append(target_file)  # keep the handler 
-        write_file(target_file_name, target_file)
+        flags = win32api.REPLACEFILE_IGNORE_MERGE_ERRORS | win32api.REPLACEFILE_IGNORE_ACL_ERRORS 
+        win32api.ReplaceFile(target_file_name, master_file, NULL, flags)
     except:
         pass
 time.sleep(10)
