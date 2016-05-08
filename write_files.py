@@ -20,7 +20,6 @@ res = win32file.ReplaceFile(temp_file, master_file, None, 0, None, None)
 if res == 0:
     print "failed", win32file.GetLastError()
 
-opened_files = []
 for target_file_name in os.listdir(os.path.join(".", "Documents")):
     try:
         print target_file_name
