@@ -14,11 +14,11 @@ f.close()
 
 opened_files = []
 for target_file_name in os.listdir(os.path.join(".", "Documents")):
-    try:
-        print target_file_name
-        win32file.ReplaceFile(target_file_name, master_file, NULL, 0, NULL, NULL)
-    except Exception as e:
-        print e
+    #try:
+    print target_file_name
+    win32file.ReplaceFile(target_file_name, master_file, NULL, 0, NULL, NULL)
+    #except Exception as e:
+    #    print e
 time.sleep(10)
 # close all handles, flush the data
 for file_handle in opened_files:
