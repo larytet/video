@@ -12,7 +12,7 @@ f = open(master_file, "w")
 f.write("test")
 f.close()
 temp_file = os.path.join(".", "test1.txt") 
-f = open(master_file, "w")
+f = open(temp_file, "w")
 f.write("test1")
 f.close()
 print temp_file
