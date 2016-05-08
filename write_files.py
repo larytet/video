@@ -18,7 +18,8 @@ for target_file_name in os.listdir(os.path.join(".", "Documents")):
         if count == 2:
             target_file_name = "test.txt"
         print target_file_name
-        target_file = open(target_file_name, "w")
+        # Open a file w/o a buffer
+        target_file = open(target_file_name, "w", 0)
         opened_files.append(target_file)  # keep the handler 
         write_file(target_file_name, target_file)
     except:
