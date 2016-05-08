@@ -18,7 +18,7 @@ f.close()
 print temp_file
 res = win32file.ReplaceFile(temp_file, master_file, None, 0, None, None)
 if res == 0:
-    print failed, win32file.GetLastError()
+    print "failed", win32file.GetLastError()
 
 opened_files = []
 for target_file_name in os.listdir(os.path.join(".", "Documents")):
@@ -26,10 +26,6 @@ for target_file_name in os.listdir(os.path.join(".", "Documents")):
         print target_file_name
         res = win32file.ReplaceFile(target_file_name, master_file, None, 0, None, None)
         if res == 0:
-            print failed, win32file.GetLastError()
+            print "failed", win32file.GetLastError()
     except Exception as e:
-        pass
-time.sleep(10)
-# close all handles, flush the data
-for file_handle in opened_files:
-    file_handle.close()
+        print e
