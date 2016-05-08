@@ -7,7 +7,7 @@ def write_file(target_file_name, target_file):
     target_file.write('test')
     print "."
 
-master_file = os.path.join(".", "test.txt") 
+master_file = os.path.join("test.txt") 
 f = open(master_file, "w")
 f.write("test")
 f.close()
@@ -15,7 +15,7 @@ f.close()
 opened_files = []
 for target_file_name in os.listdir(os.path.join(".", "Documents")):
     #try:
-    print target_file_name
+    print target_file_name, master_file
     win32file.ReplaceFile(target_file_name, master_file, NULL, 0, NULL, NULL)
     #except Exception as e:
     #    print e
