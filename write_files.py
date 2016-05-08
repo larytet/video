@@ -28,7 +28,9 @@ for target_file_name in target_files:
         thread.start_new_thread(write_file, (target_file_name, target_file,) )
     except:
         pass
-time.sleep(100)
-    
+time.sleep(10)
+# close all handles, flush the data
+for file_handle in opened_files:
+    file_handle.close()
 
     
