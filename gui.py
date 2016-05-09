@@ -27,8 +27,9 @@ class Example(ttk.Frame):
         
         background_label = Tkinter.Label(self.parent,image=background_image)
         background_label.photo=background_image
-        background_label.place(x=0, y=0)
-        background_label.pack()        
+        #background_label.place(x=0, y=0)
+        background_label.pack()   
+        self.background_label = background_label     
 
 
 def main():
