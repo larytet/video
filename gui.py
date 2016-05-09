@@ -16,7 +16,7 @@ class Example(ttk.Frame):
 
         
     def initUI(self):
-        image =Image.open("background_image.jpg.png")
+        image = Image.open("background_image.jpg.png")
         background_image = ImageTk.PhotoImage(image)
         background_image_width = background_image.width()
         background_image_height = background_image.height()
@@ -32,7 +32,12 @@ class Example(ttk.Frame):
         background_image_y = screen_height/2 - background_image_height/2
         self.parent.geometry('%dx%d+%d+%d' % (background_image_width, background_image_height, background_image_x, background_image_y))
         
-        close_button = Tkinter.Button(self.parent, text="Close", command=self.parent.destroy)
+        #ttk.Style().configure('blue/bwhite.TButton', background="#000080", foreground='white')
+        ttk.Style().configure('TButton', background="#000080")
+        close_button = ttk.Button(self.parent, text="Close", command=self.parent.destroy)
+        image = Image.open("close-btn.png")
+        close_button_image = ImageTk.PhotoImage(image)
+        close_button.config(image=close_button_image)
         close_button.pack()
         close_button.place(x=597, y=482, width=96, height=36, anchor=Tkinter.NW)
         
