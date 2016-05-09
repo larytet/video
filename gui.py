@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import Tkinter
-import ttk 
+import ttk
 from PIL import Image, ImageTk
 class Example(ttk.Frame):
   
@@ -28,9 +28,15 @@ class Example(ttk.Frame):
 
         screen_width = self.parent.winfo_screenwidth()
         screen_height = self.parent.winfo_screenheight()
-        x = screen_width/2 - background_image_width/2
-        y = screen_height/2 - background_image_height/2
-        self.parent.geometry('%dx%d+%d+%d' % (background_image_width, background_image_height, x, y))
+        background_image_x = screen_width/2 - background_image_width/2
+        background_image_y = screen_height/2 - background_image_height/2
+        self.parent.geometry('%dx%d+%d+%d' % (background_image_width, background_image_height, background_image_x, background_image_y))
+        
+        close_button = Tkinter.Button(self.parent, text="Close", command=self.parent.destroy)
+        close_button.pack()
+        close_button.place(x=297, y=242, anchor=Tkinter.NW)
+        
+
 
 def main():
   
