@@ -42,6 +42,7 @@ def main():
   
     root = Tkinter.Tk()
     root.overrideredirect(1)
+    root.wm_attributes('-topmost', 1)
     app = Example(root)
     root.mainloop()  
 
