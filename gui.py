@@ -35,8 +35,6 @@ class Example(ttk.Frame):
         x = screen_width/2 - background_image_width/2
         y = screen_height/2 - background_image_height/2
         self.parent.geometry('%dx%d+%d+%d' % (background_image_width, background_image_height, x, y))
-        #self.parent.geometry("%dx%d+%d+%d" % (size + (x, y)))
-
 
 def main():
   
