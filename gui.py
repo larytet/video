@@ -16,9 +16,6 @@ class Example(ttk.Frame):
 
         
     def initUI(self):
-      
-        #self.pack(fill=Tkinter.BOTH, expand=1)
-        
         image =Image.open("background_image.jpg.png")
         background_image = ImageTk.PhotoImage(image)
         background_image_width = background_image.width()
