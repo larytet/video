@@ -34,7 +34,7 @@ class Example(ttk.Frame):
         
         close_button = Tkinter.Button(self.parent, text="Close", command=self.parent.destroy)
         close_button.pack()
-        close_button.place(x=297, y=242, anchor=Tkinter.NW)
+        close_button.place(x=497, y=242, anchor=Tkinter.NW)
         
 
 
