@@ -21,15 +21,21 @@ class Example(ttk.Frame):
         
         image =Image.open("background_image.jpg.png")
         background_image = ImageTk.PhotoImage(image)
-        w = background_image.width()
-        h = background_image.height()
-        self.parent.geometry('%dx%d+0+0' % (w,h))
+        background_image_width = background_image.width()
+        background_image_height = background_image.height()
         
         background_label = Tkinter.Label(self.parent,image=background_image)
         background_label.photo=background_image
         #background_label.place(x=0, y=0)
         background_label.pack()   
         self.background_label = background_label     
+
+        screen_width = self.parent.winfo_screenwidth()
+        screen_height = self.parent.winfo_screenheight()
+        x = screen_width/2 - background_image_width/2
+        y = screen_height/2 - background_image_height/2
+        self.parent.geometry('%dx%d+%d+%d' % (background_image_width, background_image_height, x, y))
+        #self.parent.geometry("%dx%d+%d+%d" % (size + (x, y)))
 
 
 def main():
