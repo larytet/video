@@ -245,6 +245,31 @@ def convertmf_dump_pcap(packets, filename_out_base):
             
         return files
 
+def convertmf_rgb565_png(filename):
+    filename_image = filename+".png"
+    img = Image.new('RGB', (width, height), "black")
+    data = open(filename, 'rb').read() # read the RGB565 data from the filename_out 
+    pixels = []
+    count = len(data)
+    expected_count = width * height
+    index = 0
+    # I assume R5 G6 B5
+    while index <= (count-2):
+        pixel = get_pixel_rgb565_1(data, index)
+        pixels.append(pixel)
+        index = index + 2
+        if len(pixels) >= expected_count:
+            if index < (count-2):
+                logger.warning("Too much data for the image {0}x{1}. Expected {2} pixels, got {3} pixels".format(
+                    width, height, expected_count, count/2))
+            break
+
+    if len(pixels) < expected_count:
+        logger.warning("Not enough data for the image {0}x{1}. Expected {2} pixels, got {3} pixels".format(
+            width, height, expected_count, len(pixels)))
+    img.putdata(pixels)
+    img.save(filename_image)
+    logger.info("Generated file {0}".format(filename_image))
     
 def convertmf_image(arguments):
     '''
@@ -264,38 +289,15 @@ def convertmf_image(arguments):
         if not result:
             break
         
-        filename_image = filename_out+".png"
 
         packets = savefile.load_savefile(filecap, verbose=True).packets
         logger.info("Processing '{0}' packets, data offset {1}, resolution {2}x{3}".format(
             len(packets), hex(offset), width, height))
         
-        convertmf_dump_pcap(packets, filename_out)
-
-        # Generate am image file
-        img = Image.new('RGB', (width, height), "black")
-        data = open(filename_out, 'rb').read() # read the RGB565 data from the filename_out 
-        pixels = []
-        count = len(data)
-        expected_count = width * height
-        index = 0
-        # I assume R5 G6 B5
-        while index <= (count-2):
-            pixel = get_pixel_rgb565_1(data, index)
-            pixels.append(pixel)
-            index = index + 2
-            if len(pixels) >= expected_count:
-                if index < (count-2):
-                    logger.warning("Too much data for the image {0}x{1}. Expected {2} pixels, got {3} pixels".format(
-                        width, height, expected_count, count/2))
-                break
-
-        if len(pixels) < expected_count:
-            logger.warning("Not enough data for the image {0}x{1}. Expected {2} pixels, got {3} pixels".format(
-                width, height, expected_count, len(pixels)))
-        img.putdata(pixels)
-        img.save(filename_image)
-        logger.info("Generated file {0}".format(filename_image))
+        files = convertmf_dump_pcap(packets, filename_out)
+        
+        for filename_out in files:
+            convertmf_rgb565_png(filename)
 
         break
     
