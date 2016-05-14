@@ -223,6 +223,7 @@ def convertmf_dump_pcap(packets, filename_out_base):
         fragment_size = 2
         file_index = 0
         fileout = None
+        files = []
 
         for packet in packets:
             packet_raw = packet.raw()
@@ -237,8 +238,12 @@ def convertmf_dump_pcap(packets, filename_out_base):
                 if not result:
                     logger.error("Failed to open file '{0}' for writing".format(filename_out))
                     break
+                files.append(fileout)
                 
             fileout.write(packet_raw[offset:])
+            
+            
+        return files
 
     
 def convertmf_image(arguments):
