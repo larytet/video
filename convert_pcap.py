@@ -178,7 +178,7 @@ def save_frame_to_file(filename_image, frame, frame_index, ffmpeg_path):
             logger.error(e)
         
         if exit_code != 0:
-            logger.error("ffmpeg failed to generate file '{0}'. stderr:{1}".format(filename_image, ffmpeg_stderr))
+            logger.error("ffmpeg failed to generate file '{0}'. stdout:{1} stderr:{2}".format(filename_image, ffmpeg_stdout, ffmpeg_stderr))
             
     
 def convert_image(arguments):
