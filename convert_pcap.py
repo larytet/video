@@ -227,8 +227,8 @@ def convertmf_dump_pcap(packets, filename_out_base):
 
         for packet in packets:
             packet_raw = packet.raw()
-            timestamp = struct.unpack('<I', data[timestamp_offset:timestamp_offset+timestamp_size])
-            fragment_index = struct.unpack('<I', data[fragment_index:fragment_index:fragment_size])
+            timestamp = struct.unpack('<I', packet_raw[timestamp_offset:timestamp_offset+timestamp_size])
+            fragment_index = struct.unpack('<I', packet_raw[fragment_index:fragment_index:fragment_size])
             if (fragment_index == 0):
                 if fileout != None:
                     logger.info("Generated file {0}".format(filename_out))
