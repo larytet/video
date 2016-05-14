@@ -231,7 +231,7 @@ def convertmf_dump_pcap(packets, filename_out_base):
             packet_raw = packet.raw()
             timestamp = struct.unpack('<I', packet_raw[TIMESTAMP_OFFSET:TIMESTAMP_OFFSET+TIMESTAMP_SIZE])[0]
             fragment_index = struct.unpack('<H', packet_raw[FRAGMENT_INDEX:FRAGMENT_INDEX+FRAGMENT_SIZE])[0]
-            print "timestamp", hex(timestamp), "len", len(packet_raw), "fragment", fragment_index
+            #print "timestamp", hex(timestamp), "len", len(packet_raw), "fragment", fragment_index
             if timestamp_base is None:
                 timestamp_base = timestamp
             if (fragment_index == 0):
@@ -254,7 +254,7 @@ def convertmf_dump_pcap(packets, filename_out_base):
             
         return files
 
-def convertmf_rgb565_png(filename):
+def convertmf_rgb565_png(filename, width, height):
     filename_image = filename+".png"
     img = Image.new('RGB', (width, height), "black")
     data = open(filename, 'rb').read() # read the RGB565 data from the filename_out 
@@ -306,7 +306,7 @@ def convertmf_image(arguments):
         files = convertmf_dump_pcap(packets, filename_out)
         
         for filename_out in files:
-            convertmf_rgb565_png(filename)
+            convertmf_rgb565_png(filename_out, width, height)
 
         break
     
