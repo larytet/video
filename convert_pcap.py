@@ -5,7 +5,7 @@
 '''
 Usage:
     convert_pcap.py convert --filein=FILENAME --offset=OFFSET --fileout=FILENAME --resolution=WIDTH,HEIGHT
-    convert_pcap.py convertmf --filein=FILENAME --fileout=FILENAME --resolution=WIDTH,HEIGHT
+    convert_pcap.py convertmf --filein=FILENAME --fileout=FILENAME --resolution=WIDTH,HEIGHT --ffmpeg=FFMPEG_PATH
     convert_pcap.py udprx --fileout=FILENAME --port=UDP_PORT --resolution=WIDTH,HEIGHT  [--ffmpeg=FFMPEG_PATH] 
     convert_pcap.py udptx --filein=FILENAME --port=UDP_PORT --ip=IP_ADDRESS --rate=FRAME_RATE
     convert_pcap.py udprxsim --port=UDP_PORT --resolution=WIDTH,HEIGHT
@@ -116,6 +116,15 @@ def parse_arguments_resolution(resolution_arg):
     logger.error("Failed to parse image resolution '{0}' ".format(resolution_arg))
     return (result, None, None)
 
+FRAME_INDEX_OFFSET = 0 # bytes
+FRAME_INDEX_SIZE = 2 # bytes
+
+FRAGMENT_INDEX_OFFSET = FRAME_INDEX_OFFSET+FRAME_INDEX_SIZE
+FRAGMENT_INDEX_SIZE = 4 # bytes
+
+
+HEADER_SIZE = FRAGMENT_INDEX_SIZE + FRAME_INDEX_SIZE
+
 def parse_arguments_ffmpeg(arguments):
     result = False
     ffmpeg_path = None
@@ -143,16 +152,35 @@ def parse_arguments_ffmpeg(arguments):
     
     return (result, ffmpeg_path)
 
-FRAME_INDEX_OFFSET = 0 # bytes
-FRAME_INDEX_SIZE = 2 # bytes
-
-FRAGMENT_INDEX_OFFSET = FRAME_INDEX_OFFSET+FRAME_INDEX_SIZE
-FRAGMENT_INDEX_SIZE = 4 # bytes
-
-
-HEADER_SIZE = FRAGMENT_INDEX_SIZE + FRAME_INDEX_SIZE
-
-
+def save_frame_to_file(filename_image, frame, frame_index, ffmpeg_path):
+    if ffmpeg_path == None:
+        (result, fileout) = open_file(filename_image, "wb")
+        if (result):
+            fileout.write(frame)
+            fileout.close()
+            #logger.info("Generated file {0}".format(filename_image))
+        else:
+            logger.warning("Failed to open file {0} for writing, drop frame {1}".format(
+                filename_image, frame_index))
+    else:
+        ffmpeg_command = "ffmpeg -y -vcodec rawvideo -f rawvideo -pix_fmt rgb565 -s 320x240\
+            -i pipe:0 -f image2 -vcodec png"
+        ffmpeg_command_popen = ffmpeg_command.split()
+        ffmpeg_command_popen.append("{0}".format(filename_image)) # filename can contain white spaces
+        ffmpeg_stdout = []
+        ffmpeg_stderr = []
+        exit_code = None
+        try:
+            process = subprocess.Popen(ffmpeg_command_popen, stdin=subprocess.PIPE,stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            (ffmpeg_stdout, ffmpeg_stderr) = process.communicate(input=frame)
+            exit_code = process.wait()
+        except Exception as e:
+            logger.error(e)
+        
+        if exit_code != 0:
+            logger.error("ffmpeg failed to generate file '{0}'. stderr:{1}".format(filename_image, ffmpeg_stderr))
+            
+    
 def convert_image(arguments):
     while True:
         filename_in = arguments["--filein"]
@@ -239,7 +267,9 @@ def convertmf_dump_pcap(packets, filename_out_base):
                     logger.info("Generated file {0}".format(filename_out))
                     fileout.close()
                     fileout = None
-                filename_out = "{0}.{0:12}.{2}".format(filename_out_base, timestamp-timestamp_base, file_index)
+                    file_index = file_index + 1
+                #filename_out = "{0}.{1:012}.{2}.{3}".format(filename_out_base, timestamp-timestamp_base, hex(timestamp), file_index)
+                filename_out = "{0}.{1}".format(filename_out_base, file_index)
                 (result, fileout) = open_file(filename_out, 'wb')
                 if not result:
                     logger.error("Failed to open file '{0}' for writing".format(filename_out))
@@ -254,31 +284,9 @@ def convertmf_dump_pcap(packets, filename_out_base):
             
         return files
 
-def convertmf_rgb565_png(filename, width, height):
-    filename_image = filename+".png"
-    img = Image.new('RGB', (width, height), "black")
+def convertmf_rgb565_png(filename, frame_index, width, height, ffmpeg_path):
     data = open(filename, 'rb').read() # read the RGB565 data from the filename_out 
-    pixels = []
-    count = len(data)
-    expected_count = width * height
-    index = 0
-    # I assume R5 G6 B5
-    while index <= (count-2):
-        pixel = get_pixel_rgb565_1(data, index)
-        pixels.append(pixel)
-        index = index + 2
-        if len(pixels) >= expected_count:
-            if index < (count-2):
-                logger.warning("Too much data for the image {0}x{1}. Expected {2} pixels, got {3} pixels".format(
-                    width, height, expected_count, count/2))
-            break
-
-    if len(pixels) < expected_count:
-        logger.warning("Not enough data for the image {0}x{1}. Expected {2} pixels, got {3} pixels".format(
-            width, height, expected_count, len(pixels)))
-    img.putdata(pixels)
-    img.save(filename_image)
-    logger.info("Generated file {0}".format(filename_image))
+    save_frame_to_file(filename+".png", data, frame_index, ffmpeg_path)
     
 def convertmf_image(arguments):
     '''
@@ -298,50 +306,26 @@ def convertmf_image(arguments):
         if not result:
             break
         
-
+        (result, ffmpeg_path) = parse_arguments_ffmpeg(arguments)
+        if not result:
+            logger.error("This mode requires correct ffmpeg path. Exiting.")
+            break
+            
         packets = savefile.load_savefile(filecap, verbose=True).packets
         logger.info("Processing '{0}' packets, resolution {1}x{2}".format(
             len(packets), width, height))
         
         files = convertmf_dump_pcap(packets, filename_out)
         
+        frame_index = 0
         for filename_out in files:
-            convertmf_rgb565_png(filename_out, width, height)
+            convertmf_rgb565_png(filename_out, frame_index, width, height, ffmpeg_path)
+            frame_index = frame_index + 1
 
         break
-    
-def save_frame_to_file(filename_base, addr, frame, frame_index, ffmpeg_path):
-    (ip_address, ip_port) = addr[0], addr[1] 
-    if ffmpeg_path == None:
-        
-        filename_image = "{0}.{1}.{2}.{3}.rgb565".format(filename_base, ip_address, ip_port, frame_index)
-        (result, fileout) = open_file(filename_image, "wb")
-        if (result):
-            fileout.write(frame)
-            fileout.close()
-            #logger.info("Generated file {0}".format(filename_image))
-        else:
-            logger.warning("Failed to open file {0} for writing, drop frame {1}".format(
-                filename_image, frame_index))
-    else:
-        filename_image = "{0}.{1}.{2}.{3}.png".format(filename_base, ip_address, ip_port, frame_index)
-        ffmpeg_command = "ffmpeg -y -vcodec rawvideo -f rawvideo -pix_fmt rgb565 -s 320x240\
-            -i pipe:0 -f image2 -vcodec png"
-        ffmpeg_command_popen = ffmpeg_command.split()
-        ffmpeg_command_popen.append("{0}".format(filename_image)) # filename can contain white spaces
-        ffmpeg_stdout = []
-        ffmpeg_stderr = []
-        exit_code = None
-        try:
-            process = subprocess.Popen(ffmpeg_command_popen, stdin=subprocess.PIPE,stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            (ffmpeg_stdout, ffmpeg_stderr) = process.communicate(input=frame)
-            exit_code = process.wait()
-        except Exception as e:
-            logger.error(e)
-        
-        if exit_code != 0:
-            logger.error("ffmpeg failed to generate file '{0}'. stderr:{1}".format(filename_image, ffmpeg_stderr))
-            
+   
+def generate_file_name(filename_base, addr, frame_index, extension="rgb565"):
+    filename = "{0}.{1}.{2}.{3}.{4}".format(filename_base, addr[0], addr[1], frame_index, extension)
     
 def run_udp_rx_simulation(udp_socket, width, height):
     expected_frame_size = width * height * 2
@@ -391,6 +375,9 @@ def run_udp_rx_thread(filename_base, udp_socket, width, height, ffmpeg_path):
     lock = lock = threading.Lock()
     thread.start_new_thread(run_udp_disconnected_clients, (received_udp_packets, lock))
     rx_buffer_size = 1500
+    filename_out_extension = "rgb565"
+    if ffmpeg_path is not None:
+        filename_out_extension = "png"
     while True:
         try:
             data, addr = udp_socket.recvfrom(rx_buffer_size)
@@ -445,7 +432,8 @@ def run_udp_rx_thread(filename_base, udp_socket, width, height, ffmpeg_path):
 
         # The 'frame' contains a whole image - save the data to the rgb565 file
         if process_frame:
-            thread.start_new_thread(save_frame_to_file, (filename_base, addr, frame, frame_index, ffmpeg_path))
+            filename_out = generate_file_name(filename_base, addr, frame_index, filename_out_extension)
+            thread.start_new_thread(save_frame_to_file, (filename_out, frame, frame_index, ffmpeg_path))
             received_frames = received_frames + 1
             frame = ""
 
