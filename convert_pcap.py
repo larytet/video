@@ -54,13 +54,13 @@ except Exception as e:
     print "Try 'pip install -U pypcapfile'"
     print e
 
-def convert_to_int(str, base):
+def convert_to_int(str_in, base):
     value = None
     try:
-        value = int(str, base)
+        value = int(str_in, base)
         result = True
     except Exception as e:
-        logger.error("Bad formed number '{0}'".format(str))
+        logger.error("Bad formed number '{0}'".format(str_in))
         logger.error(e)
         result = False
     return (result, value)
@@ -171,7 +171,7 @@ def save_frame_to_file(filename_image, frame, frame_index, ffmpeg_path):
         ffmpeg_stderr = []
         exit_code = None
         try:
-            process = subprocess.Popen(ffmpeg_command_popen, stdin=subprocess.PIPE,stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            process = subprocess.Popen(ffmpeg_command_popen, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             (ffmpeg_stdout, ffmpeg_stderr) = process.communicate(input=frame)
             exit_code = process.wait()
         except Exception as e:
@@ -252,6 +252,7 @@ def convertmf_dump_pcap(packets, filename_out_base):
         DATA_OFFSET = FRAGMENT_INDEX + FRAGMENT_SIZE
         file_index = 0
         fileout = None
+        filename_out = None
         files = []
         timestamp_base = None
 
@@ -262,7 +263,7 @@ def convertmf_dump_pcap(packets, filename_out_base):
             #print "timestamp", hex(timestamp), "len", len(packet_raw), "fragment", fragment_index
             if timestamp_base is None:
                 timestamp_base = timestamp
-            if (fragment_index == 0):
+            if fragment_index == 0:
                 if fileout != None:
                     logger.info("Generated file {0}".format(filename_out))
                     fileout.close()
@@ -326,6 +327,7 @@ def convertmf_image(arguments):
    
 def generate_file_name(filename_base, addr, frame_index, extension="rgb565"):
     filename = "{0}.{1}.{2}.{3}.{4}".format(filename_base, addr[0], addr[1], frame_index, extension)
+    return filename
     
 def run_udp_rx_simulation(udp_socket, width, height):
     expected_frame_size = width * height * 2
@@ -342,7 +344,7 @@ def run_udp_rx_simulation(udp_socket, width, height):
             logger.error(e)
             break
         received_bytes = received_bytes + len(data)
-        if (len(data) < 1300):
+        if len(data) < 1300:
             logger.error("Frame completed {0} bytes".format(received_bytes))
             received_bytes = 0
             
@@ -562,7 +564,7 @@ def run_udptx(arguments):
                 #fps_period = 1.0
                 
             frame_index = frame_index + 1
-            if (frame_index >= 64*1024): frame_index = 0;
+            if (frame_index >= 64*1024): frame_index = 0
             bytes_sent = 0
             fragment_index = 0
             fragments_sent = 0
