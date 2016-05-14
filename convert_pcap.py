@@ -217,11 +217,11 @@ def convert_image(arguments):
 
 def convertmf_dump_pcap(packets, filename_out_base):
     for packet in packets:
-        timestamp_offset = 0x0e
-        timestamp_size = 4
-        fragment_index = timestamp_offset+timestamp_size
-        fragment_size = 2
-        data_offset = fragment_index + fragment_size
+        TIMESTAMP_OFFSET = 0x0e
+        TIMESTAMP_SIZE = 4
+        FRAGMENT_INDEX = TIMESTAMP_OFFSET+TIMESTAMP_SIZE
+        FRAGMENT_SIZE = 2
+        DATA_OFFSET = FRAGMENT_INDEX + FRAGMENT_SIZE
         file_index = 0
         fileout = None
         files = []
@@ -229,8 +229,8 @@ def convertmf_dump_pcap(packets, filename_out_base):
 
         for packet in packets:
             packet_raw = packet.raw()
-            timestamp = struct.unpack('<I', packet_raw[timestamp_offset:timestamp_offset+timestamp_size])[0]
-            fragment_index = struct.unpack('<H', packet_raw[fragment_index:fragment_index+fragment_size])[0]
+            timestamp = struct.unpack('<I', packet_raw[TIMESTAMP_OFFSET:TIMESTAMP_OFFSET+TIMESTAMP_SIZE])[0]
+            fragment_index = struct.unpack('<H', packet_raw[FRAGMENT_INDEX:FRAGMENT_INDEX+FRAGMENT_SIZE])[0]
             print "timestamp", hex(timestamp), "len", len(packet_raw), "fragment", fragment_index
             if timestamp_base is None:
                 timestamp_base = timestamp
@@ -246,7 +246,7 @@ def convertmf_dump_pcap(packets, filename_out_base):
                     break
                 files.append(filename_out)
                 
-            fileout.write(packet_raw[data_offset:])
+            fileout.write(packet_raw[DATA_OFFSET:])
             
         if fileout != None:
             logger.info("Generated file {0}".format(filename_out))
