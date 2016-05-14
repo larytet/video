@@ -239,7 +239,7 @@ def convertmf_dump_pcap(packets, filename_out_base):
                     logger.info("Generated file {0}".format(filename_out))
                     fileout.close()
                     fileout = None
-                filename_out = "{0}.{1}.{2}".format(filename_out_base, timestamp-timestamp_base, file_index)
+                filename_out = "{0}.{0:12}.{2}".format(filename_out_base, timestamp-timestamp_base, file_index)
                 (result, fileout) = open_file(filename_out, 'wb')
                 if not result:
                     logger.error("Failed to open file '{0}' for writing".format(filename_out))
