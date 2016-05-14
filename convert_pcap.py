@@ -233,6 +233,7 @@ def convertmf_dump_pcap(packets, filename_out_base):
                 if fileout != None:
                     logger.info("Generated file {0}".format(filename_out))
                     fileout.close()
+                    fileout = None
                 filename_out = "{0}.{1}".format(filename_out_base, file_index)
                 (result, fileout) = open_file(filename_out, 'wb')
                 if not result:
@@ -242,6 +243,9 @@ def convertmf_dump_pcap(packets, filename_out_base):
                 
             fileout.write(packet_raw[offset:])
             
+        if fileout != None:
+            logger.info("Generated file {0}".format(filename_out))
+            fileout.close()
             
         return files
 
