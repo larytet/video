@@ -32,4 +32,4 @@ cat ./test_320x240_rgb565_noudp.pcap.rgb565 | ffmpeg -y -vcodec rawvideo -f rawv
 
 *  Create a video file from multiple PNG files
 ffmpeg -y -start_number 0 -r 25 -i  ./test.127.0.0.1.60410.%d.png ./test.mpg
-For lossless video try  -codec png out.mov
+For lossless video try  -codec png out.mov pr ffmpeg -r "24" -i "f_%%1d.png" -vcodec "libx264" -crf "0" "output.mkv"
