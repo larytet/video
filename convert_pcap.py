@@ -295,7 +295,7 @@ def convertmf_image(arguments):
         
 
         packets = savefile.load_savefile(filecap, verbose=True).packets
-        logger.info("Processing '{0}' packets, resolution {2}x{3}".format(
+        logger.info("Processing '{0}' packets, resolution {1}x{2}".format(
             len(packets), width, height))
         
         files = convertmf_dump_pcap(packets, filename_out)
