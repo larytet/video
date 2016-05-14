@@ -224,22 +224,25 @@ def convertmf_dump_pcap(packets, filename_out_base):
         file_index = 0
         fileout = None
         files = []
+        timestamp_base = None
 
         for packet in packets:
             packet_raw = packet.raw()
             timestamp = struct.unpack('<I', packet_raw[timestamp_offset:timestamp_offset+timestamp_size])
+            if timestamp_base is None:
+                timestamp_base = timestamp
             fragment_index = struct.unpack('<H', packet_raw[fragment_index:fragment_index+fragment_size])
             if (fragment_index == 0):
                 if fileout != None:
                     logger.info("Generated file {0}".format(filename_out))
                     fileout.close()
                     fileout = None
-                filename_out = "{0}.{1}".format(filename_out_base, file_index)
+                filename_out = "{0}.{1}.{2}".format(filename_out_base, timestamp-timestamp_base, file_index)
                 (result, fileout) = open_file(filename_out, 'wb')
                 if not result:
                     logger.error("Failed to open file '{0}' for writing".format(filename_out))
                     break
-                files.append(fileout)
+                files.append(filename_out)
                 
             fileout.write(packet_raw[offset:])
             
