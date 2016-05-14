@@ -4,7 +4,8 @@
 # Data can come from OV7691
 '''
 Usage:
-    convert_pcap.py convert --filein=FILENAME --offset=OFFSET --fileout=FILENAME --resolution=WIDTH,HEIGHT [--timestamp]
+    convert_pcap.py convert --filein=FILENAME --offset=OFFSET --fileout=FILENAME --resolution=WIDTH,HEIGHT
+    convert_pcap.py convertmf --filein=FILENAME --fileout=FILENAME --resolution=WIDTH,HEIGHT
     convert_pcap.py udprx --fileout=FILENAME --port=UDP_PORT --resolution=WIDTH,HEIGHT  [--ffmpeg=FFMPEG_PATH] 
     convert_pcap.py udptx --filein=FILENAME --port=UDP_PORT --ip=IP_ADDRESS --rate=FRAME_RATE
     convert_pcap.py udprxsim --port=UDP_PORT --resolution=WIDTH,HEIGHT
@@ -148,6 +149,7 @@ FRAME_INDEX_SIZE = 2 # bytes
 FRAGMENT_INDEX_OFFSET = FRAME_INDEX_OFFSET+FRAME_INDEX_SIZE
 FRAGMENT_INDEX_SIZE = 4 # bytes
 
+
 HEADER_SIZE = FRAGMENT_INDEX_SIZE + FRAME_INDEX_SIZE
 
 
@@ -170,7 +172,7 @@ def convert_image(arguments):
         (result, width, height) = parse_arguments_resolution(arguments["--resolution"])
         if not result:
             break
-
+        
         filename_image = filename_out+".png"
 
         # Read the PCAP file , save the payload (RGB565) in a separate file
@@ -185,6 +187,85 @@ def convert_image(arguments):
             fileout.write(packet_raw[offset:])
         fileout.close()
         logger.info("Generated file {0}".format(filename_out))
+
+        # Generate am image file
+        img = Image.new('RGB', (width, height), "black")
+        data = open(filename_out, 'rb').read() # read the RGB565 data from the filename_out 
+        pixels = []
+        count = len(data)
+        expected_count = width * height
+        index = 0
+        # I assume R5 G6 B5
+        while index <= (count-2):
+            pixel = get_pixel_rgb565_1(data, index)
+            pixels.append(pixel)
+            index = index + 2
+            if len(pixels) >= expected_count:
+                if index < (count-2):
+                    logger.warning("Too much data for the image {0}x{1}. Expected {2} pixels, got {3} pixels".format(
+                        width, height, expected_count, count/2))
+                break
+
+        if len(pixels) < expected_count:
+            logger.warning("Not enough data for the image {0}x{1}. Expected {2} pixels, got {3} pixels".format(
+                width, height, expected_count, len(pixels)))
+        img.putdata(pixels)
+        img.save(filename_image)
+        logger.info("Generated file {0}".format(filename_image))
+
+        break
+
+def convertmf_dump_pcap(packets, filename_out_base):
+    for packet in packets:
+        timestamp_offset = 0
+        timestamp_size = 4
+        fragment_index = timestamp_offset+timestamp_size
+        fragment_size = 2
+        file_index = 0
+        fileout = None
+
+        for packet in packets:
+            packet_raw = packet.raw()
+            timestamp = struct.unpack('<I', data[timestamp_offset:timestamp_offset+timestamp_size])
+            fragment_index = struct.unpack('<I', data[fragment_index:fragment_index:fragment_size])
+            if (fragment_index == 0):
+                if fileout != None:
+                    logger.info("Generated file {0}".format(filename_out))
+                    fileout.close()
+                filename_out = "{0}.{1}".format(filename_out_base, file_index)
+                (result, fileout) = open_file(filename_out, 'wb')
+                if not result:
+                    logger.error("Failed to open file '{0}' for writing".format(filename_out))
+                    break
+                
+            fileout.write(packet_raw[offset:])
+
+    
+def convertmf_image(arguments):
+    '''
+    Read PCAP frame by frame. The packet contains 4 bytes of timestamp, 2 bytes of fragment index
+    '''
+    while True:
+        filename_in = arguments["--filein"]
+        filename_out = arguments["--fileout"]
+        offset_str = arguments["--offset"]
+        (result, filecap) = open_file(filename_in, 'rb')
+        if not result:
+            logger.error("Failed to open file '{0}' for reading".format(filename_in))
+            break
+
+
+        (result, width, height) = parse_arguments_resolution(arguments["--resolution"])
+        if not result:
+            break
+        
+        filename_image = filename_out+".png"
+
+        packets = savefile.load_savefile(filecap, verbose=True).packets
+        logger.info("Processing '{0}' packets, data offset {1}, resolution {2}x{3}".format(
+            len(packets), hex(offset), width, height))
+        
+        convertmf_dump_pcap(packets, filename_out)
 
         # Generate am image file
         img = Image.new('RGB', (width, height), "black")
@@ -490,12 +571,15 @@ if __name__ == '__main__':
     logger.setLevel(logging.INFO)
 
     is_convert = arguments["convert"]
+    is_convertmf = arguments["convertmf"]
     is_udprx = arguments["udprx"]
     is_udprxsim = arguments["udprxsim"]
     is_udptx = arguments["udptx"]
 
     if is_convert:
         convert_image(arguments)
+    if is_convertmf:
+        convertmf_image(arguments)
     elif is_udprx:
         run_udp_rx(arguments)
     elif is_udprxsim:
