@@ -256,9 +256,25 @@ def convertmf_dump_pcap(packets, filename_out_base):
         files = []
         timestamp_base = None
 
+        timestamp_changes = []
+        last_timestamp = None
+        timestamp_rate = 168.0*1000*1000 # 168Mhz
+        expected_delta = 1.0/15 # 1/15fps
         for packet in packets:
             packet_raw = packet.raw()
             timestamp = struct.unpack('<I', packet_raw[TIMESTAMP_OFFSET:TIMESTAMP_OFFSET+TIMESTAMP_SIZE])[0]
+            if last_timestamp is None:
+                last_timestamp = timestamp
+                timestamp_changes.append(timestamp)
+                timestamp_changes.append(timestamp)
+            else:
+                if last_timestamp != timestamp:
+                    timestamp_changes.append(timestamp)
+                    last_timestamp = timestamp
+                    delta = timestamp - timestamp_changes[len(timestamp_changes)-2]
+                    delta_seconds = delta/timestamp_rate
+                    logger.info("Timestamp {0} {4}, last {1}, delta {2}, delta with expected {3}".format(timestamp, last_timestamp, delta_seconds, delta_seconds-expected_delta, hex(timestamp)))
+                
             fragment_index = struct.unpack('<H', packet_raw[FRAGMENT_INDEX:FRAGMENT_INDEX+FRAGMENT_SIZE])[0]
             #print "timestamp", hex(timestamp), "len", len(packet_raw), "fragment", fragment_index
             if timestamp_base is None:
