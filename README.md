@@ -14,7 +14,7 @@ Windows 8
 * Install Python 2.7 https://www.python.org/downloads/release/python-2711/
 * Clone the repository git clone git@github.com:larytet/video.git or download and uncompess a ZIP
 * cd video
-* pip install -r requirements.txt
+* c:\Python27\scripts\pip.exe install -r requirements.txt
 * python convert_pcap.py -h
 
 Links
