@@ -2,7 +2,7 @@
 
 Intorduction
 ===============================
-A PC application which takes raw video data deleivered over Ethernet and convert the data to a video stream.
+A PC application which takes raw video data deleivered over Ethernet and convert the data to a video stream. The script can work with files containiing captured raw data as well. 
 
 How to run on Linux/MacOS
 ==============================
